@@ -1,13 +1,33 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # author: Rodney Summerscales
 
+"""
+ various functions for working with xml elements
+"""
+
 import xml.dom
+import sentence
 
-##############################################################
-# various functions for working with xml elements 
-##############################################################
+def parseSentences(node, abstract=None):
+  """ return a list of sentences elements constructed from an xml element
+      that contain sentence elements """
+  sList = []
+  sNodes = node.getElementsByTagName('sentence')
+  for i in range(0, len(sNodes)):
+    s = sentence.Sentence()
+    s.parseXML(sNodes[i], i, abstract)
+    if len(s.tokens) > 3:
+      sList.append(s)
+  return sList
 
-    
+def createSentenceListNode(name, sentenceList, doc):
+  """ given a list of sentences, create an xml node with the given name, with
+      the given list of sentences """
+  node = doc.createElement(name)
+  for s in sentenceList:
+    node.appendChild(s.getXML(doc))
+  return node
+
 def createNodeWithTextChild(doc, name, value):
   """ create simple xml node with text child """
   node = doc.createElement(name)

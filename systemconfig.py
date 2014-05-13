@@ -8,7 +8,7 @@ import sys
 import sentencefilters
 import finderfilters
 
-from abstract import AbstractList
+from abstractlist import AbstractList
 from findertask import FinderTask
 from findertask import DefaultFinder
 from mentionfinder import MentionFinder

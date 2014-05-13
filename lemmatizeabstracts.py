@@ -7,7 +7,7 @@ import sys
 import nltk
 from nltk.stem.wordnet import WordNetLemmatizer
 
-from abstract import AbstractList
+from abstractlist import AbstractList
 
 if len(sys.argv) < 2:
   print "Usage: lemmatizeabstracts.py <PATH>"

@@ -4,7 +4,7 @@
 
 import sys
 
-from abstract import AbstractList
+from abstractlist import AbstractList
 from dictionaryfinder import DictionaryFinder
 
 class SemanticTagAnnotator(DictionaryFinder):

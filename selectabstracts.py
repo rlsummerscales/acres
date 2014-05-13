@@ -9,7 +9,7 @@ import os
 import glob
 import random
 
-from abstract import AbstractList
+from abstractlist import AbstractList
 
 if len(sys.argv) < 2:
   print "Usage: selectabstracts.py <INPUT_PATH>"

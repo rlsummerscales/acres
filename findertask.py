@@ -5,7 +5,7 @@
 import sys
 import os.path
 
-from abstract import AbstractList
+from abstractlist import AbstractList
 from finder import Finder
 
 class DefaultFinder(Finder):

@@ -8,7 +8,7 @@ import sys
 #from nltk.corpus import wordnet as wn
 
 from irstats import IRstats
-from abstract import AbstractList
+from abstractlist import AbstractList
 #from parsetree import ParseTreeNode
 #from parsetree import SimplifiedTreeNode
 import mallet

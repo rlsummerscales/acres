@@ -14,7 +14,7 @@ from operator import itemgetter
 from xml.dom.minidom import Document
 from irstats import IRstats
 from summarystats import SummaryStats
-from abstract import AbstractList
+from abstractlist import AbstractList
 from templates import Templates
 from agetemplate import AgeValue
 from templates import createMergedList, createAnnotatedMergedList, countMatches

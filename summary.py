@@ -15,7 +15,7 @@ from operator import itemgetter
 from xml.dom.minidom import Document
 from irstats import IRstats
 from summarystats import SummaryStats
-from abstract import AbstractList
+from abstractlist import AbstractList
 from templates import Templates
 from agetemplate import AgeValue
 from templates import createMergedList, createAnnotatedMergedList, countMatches
@@ -43,8 +43,8 @@ class Summary:
   locationList = None     # list of locations where study is performed
   summaryStatsList = None     # list of summary statistics in abstract
   randomized = False      # is the abstract describing an RCT?
-  randomizedTerms = set(['randomized', 'randomised', 'randomly', 'randomization',
-                        'randomisation'])
+  randomizedTerms = {'randomized', 'randomised', 'randomly', 'randomization',
+                        'randomisation'}
   useTrialReports = True
   
   def __init__(self, abstract, useAnnotated=False, useTrialReports=True):

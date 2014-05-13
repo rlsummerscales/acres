@@ -5,7 +5,7 @@ import sys
 #import nltk
 #from nltk.corpus import wordnet as wn
 
-from abstract import AbstractList
+from abstractlist import AbstractList
 from summary import SummaryList
 from statlist import StatList
 from findertask import FinderTask
