@@ -2,7 +2,6 @@
 
 """
   Rule-based finder for extracting cost-effectiveness terms
-
 """
 
 __author__ = 'Rodney L. Summerscales'
@@ -43,3 +42,4 @@ class CostTermFinder(RuleBasedFinder):
         # label each token in maximal NP as a cost effectiveness term
         for node in phraseNode.tokenNodes():
             node.token.addLabel(self.label)
+            node.token.addLabel("outcome")    # CE term is also an outcome
