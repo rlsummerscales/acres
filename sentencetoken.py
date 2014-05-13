@@ -4,7 +4,6 @@
 Store all relevant information for a token from a sentence.
 """
 
-
 import re
 import nltk.corpus
 
@@ -21,8 +20,9 @@ class Token:
     """ This object contains all relevant information about a token. """
     text = ''  # the token itself
     pos = ''  # part of speech tag
-    #  stem=''           # stem of the token with affixes stripped
+    #  stem=''              # stem of the token with affixes stripped
     lemma = ''  # common lemma for the word
+    __units = ''
     index = -1  # position of token in sentence
     governors = None  # dependencies where this token is the dependent
     dependents = None  # dependencies where this token is the governor
@@ -69,8 +69,10 @@ class Token:
                      'SD': 'standard_deviation'}
 
     symbolTokens = {'~', '`', '!', '@', '#', '$', '%', '^', '&', '*', '-LRB-',
-                        '-RRB-', '-', '+', '=', '<', '>', 'plus_minus', ',', '.', '/', '?',
-                        '\'', ':', ';'}
+                    '-RRB-', '-', '+', '=', '<', '>', 'plus_minus', ',', '.', '/', '?',
+                    '\'', ':', ';'}
+
+    currencyWordSet = {"pound", "dollar", "euro", "$"}
     stopWordSet = nltk.corpus.stopwords.words('english')
     negationWordSet = {'not', 'no', 'without', 'never', 'neither', 'none', 'non'}
     nullNumberWords = {'none', 'no'}
@@ -89,6 +91,7 @@ class Token:
         else:
             self.pos = pos
 
+        self.__units = ''
         self.features = {}
         self.allFeatures = {}
         self.topKLabels = {}
@@ -478,45 +481,20 @@ class Token:
     def isImportantInteger(self):
         """  return true if the integer is one that could be an outcome number
              or group size """
-        if (self.specialValueType == None and self.isInteger() == True and self.getValue() >= 0 \
+        if (self.specialValueType == None and self.isInteger() == True and self.getValue() >= 0
                     and self.isPercentage() == False):
             return True
         else:
             return False
 
-            #    if (self.specialValueType == None and self.isInteger() == True \
-            #        and self.isPercentage() == False):
-            #      # string is an integer, check if it is one that we are interested in
-            #      nextToken = self.nextToken()
-            #      if nextToken != None and (nextToken.isMeasurementWord() == True \
-            #        or nextToken.isTimeWord() == True or nextToken.text == 'times'):
-            #          # integer is a percentage, time or measurement -- not one that we want
-            #          return False
-            #
-            #      return True
-            #    else:
-            #      # token is not an integer of any kind
-            #      return False
-
     def isImportantNumber(self):
         """  return true if the integer is one that could be an outcome number,
-             group size, or event rate """
-        if self.isNumber() and self.specialValueType == None and self.getValue() >= 0:
+             group size, or event rate
+        """
+        if self.isNumber() and self.specialValueType is None and self.getValue() >= 0:
             return True
         else:
-            return False  # not a number or a special type of number
-
-            #    if self.isNumber() and self.specialValueType == None: # and self.getValue() >= 0:
-            #      nextToken = self.nextToken()
-            ##      if self.isInteger() == False and self.getValue() > 100:
-            ##        return False  # ignore float values greater than 100
-            #      if nextToken != None and (nextToken.isMeasurementWord() == True \
-            #        or nextToken.isTimeWord() == True or nextToken.text == 'times'):
-            #        return False    # number is a time or measurement
-            #      else:
-            #        return True
-            #    else:
-            #      return False     # not a number or a special type of number
+            return False
 
     def isInteger(self):
         """ return true if the token is an integer """
@@ -623,15 +601,27 @@ class Token:
 
         return False
 
+    def isCurrencyWord(self):
+        """ return true if this token appears in a list of common currencies (e.g. dollars, pounds, euros)."""
+        if self.lemma in self.currencyWordSet:
+            return True
+        else:
+            return False
+
     def getUnits(self):
         """ if this token is a measurement, e.g. mass, volume, time, return its units,
             if we know what they are, otherwise, return None.
             For now assume that the next token is the units. """
-        nextToken = self.nextToken()
-        if nextToken != None and nextToken.isMeasurementWord():
-            return nextToken.text
-        else:
-            return None
+        if self.__units is not '':
+            return self.__units
+        elif self.isNumber():
+            nextToken = self.nextToken()
+            if nextToken is not None and (nextToken.isMeasurementWord() or nextToken.isCurrencyWord()):
+                self.__units = nextToken.text
+            elif self.previousToken() is not None and self.previousToken().isCurrencyWord():
+                self.__units = self.previousToken().text
+
+        return self.__units
 
     def isGroupWord(self):
         """ return true if this token is in a list of common group words."""

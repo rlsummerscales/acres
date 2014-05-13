@@ -48,7 +48,7 @@ from baselinementionclusterer import BaselineMentionClusterer
 from truementionclusterer import TrueMentionClusterer
 from clustermentions import MentionClusterer
 
-from summary import SummaryList
+from summarylist import SummaryList
 
 from outcomemeasurementlinker import RuleBasedOutcomeMeasurementLinker
 from trueoutcomemeasurementlinker import TrueOutcomeMeasurementLinker

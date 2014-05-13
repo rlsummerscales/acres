@@ -13,7 +13,7 @@ class CostValueFinder(RuleBasedFinder):
     """ Find and label tokens in phrases cost effectiveness values.
         """
     label = 'cost_value'
-    currencyWordSet = {"pound", "dollar", "euro", "$"}
+
 
     def __init__(self):
         """ Create a finder that identifies age phrases. All tokens in
@@ -27,6 +27,6 @@ class CostValueFinder(RuleBasedFinder):
         if token.isNumber() is False:
             return
 
-        if (token.nextToken() is not None and (token.nextToken().lemma in self.currencyWordSet)) \
-                or (token.previousToken() is not None and (token.previousToken().lemma in self.currencyWordSet)):
+        if (token.nextToken() is not None and (token.isCurrencyWord)
+                or (token.previousToken() is not None and (token.isCurrencyWord))):
             token.addLabel(self.label)

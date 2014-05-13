@@ -4,7 +4,7 @@
 
 import sys
 
-from summary import SummaryList
+from summarylist import SummaryList
 from abstractlist import AbstractList
 from statlist import StatList
 from systemconfig import RunConfiguration

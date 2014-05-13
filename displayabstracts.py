@@ -6,8 +6,6 @@ import sys
 #from nltk.corpus import wordnet as wn
 
 from abstractlist import AbstractList
-from summary import SummaryList
-from statlist import StatList
 
 if len(sys.argv) < 3:
   print "Usage: displayentities.py <ABSTRACT_PATH> <LABEL_1> <LABEL_2> ... <LABEL_N>"

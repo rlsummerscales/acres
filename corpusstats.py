@@ -6,7 +6,7 @@ import sys
 #from nltk.corpus import wordnet as wn
 
 from abstractlist import AbstractList
-from summary import SummaryList
+from summarylist import SummaryList
 from statlist import StatList
 
 if len(sys.argv) < 2:

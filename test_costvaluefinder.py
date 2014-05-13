@@ -3,7 +3,8 @@
 import itertools
 import costvaluefinder
 import tokenlist
-from sentencetoken import Token
+import sentencetoken
+
 from sentence import Sentence
 
 
@@ -29,11 +30,12 @@ class TokenLabelCorrect(unittest.TestCase):
     finder = costvaluefinder.CostValueFinder()
 
     def setUp(self):
-        self.valueTokens = [Token("54.3"), Token("0"), Token("72")]
-        self.currencyTokens = [Token(text="pounds", lemma="pound"),
-                               Token(text="$", lemma="$"), Token(text="dollars", lemma="dollar"),
-                               Token(text="euros", lemma="euro")]
-        self.otherTokens = [Token("("), Token("cost"), Token("weeks")]
+        self.valueTokens = [sentencetoken.Token("54.3"), sentencetoken.Token("0"), sentencetoken.Token("72")]
+        self.currencyTokens = [sentencetoken.Token(text="pounds", lemma="pound"),
+                               sentencetoken.Token(text="$", lemma="$"),
+                               sentencetoken.Token(text="dollars", lemma="dollar"),
+                               sentencetoken.Token(text="euros", lemma="euro")]
+        self.otherTokens = [sentencetoken.Token("("), sentencetoken.Token("cost"), sentencetoken.Token("weeks")]
 
 
     def test_positive_cases(self):

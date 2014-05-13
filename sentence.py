@@ -14,12 +14,13 @@ from xml.dom.minidom import Document
 import xmlutil
 import simplifiedsentence
 import umlschunk
+import sentencetoken
+import tokenlist
 
 from mention import Mention
 from parsetree import ParseTreeNode
 from parsetree import SimplifiedTreeNode
-from sentencetoken import Token
-from tokenlist import TokenList
+
 
 
 class Sentence:
@@ -46,7 +47,7 @@ class Sentence:
     def __init__(self, tokenList=None):
         self.index = None
         if tokenList == None:
-            self.tokens = TokenList()
+            self.tokens = tokenlist.TokenList()
         else:
             self.createFromTokenList(tokenList)
         self.phrases = None
@@ -72,7 +73,7 @@ class Sentence:
 
     def createFromString(self, sentenceText):
         """ create a sentence from a string of text. Tokenize on whitespace """
-        tokenList = TokenList()
+        tokenList = tokenlist.TokenList()
         tokenList.convertString(sentenceText)
         self.createFromTokenList(tokenList)
 
@@ -85,7 +86,7 @@ class Sentence:
         tNodes = sNode.getElementsByTagName('token')
         i = 0
         for node in tNodes:
-            t = Token()
+            t = sentencetoken.Token()
             t.parseXML(node, i, self)
             self.tokens.append(t)
             i = i + 1
@@ -261,14 +262,14 @@ class Sentence:
             return self.annotatedMentions[mType]
         else:
             mentionList = []
-            tList = TokenList()
+            tList = tokenlist.TokenList()
             for token in self.tokens:
                 if token.hasAnnotation(mType):
                     tList.append(token)
                 elif len(tList) > 0:
                     # no longer in a mention, but previous token was
                     mentionList.append(Mention(tList, annotated=True))
-                    tList = TokenList()
+                    tList = tokenlist.TokenList()
 
             if len(tList) > 0:
                 # add mention that includes last token in sentence
@@ -285,14 +286,14 @@ class Sentence:
             return self.detectedMentions[mType]
         else:
             mentionList = []
-            tList = TokenList()
+            tList = tokenlist.TokenList()
             for token in self.tokens:
                 if token.hasLabel(mType):
                     tList.append(token)
                 elif len(tList) > 0:
                     # no longer in a mention, but previous token was
                     mentionList.append(Mention(tList, annotated=False))
-                    tList = TokenList()
+                    tList = tokenlist.TokenList()
 
             if len(tList) > 0:
                 # add mention that includes last token in sentence
