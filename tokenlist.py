@@ -5,7 +5,7 @@
 
 import re
 
-from sentencetoken import Token
+import sentencetoken
 
 
 ##############################################################
@@ -24,7 +24,7 @@ class TokenList(list):
         """ convert list of strings into list of Token elements """
         del self[:]
         for text in stringList:
-            token = Token(text)
+            token = sentencetoken.Token(text)
             #      print 'adding: ', token.text
             self.append(token)
 

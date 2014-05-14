@@ -35,7 +35,8 @@ class TokenLabelCorrect(unittest.TestCase):
                                sentencetoken.Token(text="$", lemma="$"),
                                sentencetoken.Token(text="dollars", lemma="dollar"),
                                sentencetoken.Token(text="euros", lemma="euro")]
-        self.otherTokens = [sentencetoken.Token("("), sentencetoken.Token("cost"), sentencetoken.Token("weeks")]
+        self.otherTokens = [sentencetoken.Token("("), sentencetoken.Token("cost"), sentencetoken.Token("weeks"),
+                            sentencetoken.Token("July")]
 
 
     def test_positive_cases(self):
