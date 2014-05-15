@@ -42,4 +42,3 @@ class CostTermFinder(RuleBasedFinder):
         # label each token in maximal NP as a cost effectiveness term
         for node in phraseNode.tokenNodes():
             node.token.addLabel(self.label)
-            node.token.addLabel("outcome")    # CE term is also an outcome
