@@ -238,7 +238,7 @@ class Summary:
 
         out.write('<p>')
         self.abstract.writeHTML(out, ['group', 'outcome', 'condition', \
-                                      'eventrate', 'on', 'gs', 'cost_value', 'cost_term'], showError)
+                                      'eventrate', 'on', 'gs', 'cost_value'], showError)
         #    self.abstract.writeHTML(out)
         if self.useTrialReports and includeReport and self.abstract.report != None:
             out.write('<h3>Report</h3><ul>\n')
@@ -317,26 +317,4 @@ class Summary:
         self.subjectList.writeHTML(out)
         self.outcomeList.writeHTML(out, showError)
 
-    def writeEvaluationForm(self, path, abstractPath):
-        """ write evaluation summary to file in given path, include the abstract."""
-        filename = path + self.abstract.id + '.summary.txt'
-        out = codecs.open(filename, 'w', 'utf-8')
-        link = 'http://www.ncbi.nlm.nih.gov/pubmed/' + self.abstract.id
 
-        out.write('Link: '+link+'\n\n')
-        abstractFilename = abstractPath+self.abstract.id+'.xml'
-        xmldoc = xml.dom.minidom.parse(abstractFilename)
-        titleNodes = xmldoc.getElementsByTagName('ArticleTitle')
-        out.write(xmlutil.getText(titleNodes[0])+'\n\n')
-        tNodes = xmldoc.getElementsByTagName('AbstractText')
-        for node in tNodes:
-            label = node.getAttribute('Label')
-            if label != None and len(label) > 0:
-                out.write(label+':\n')
-            out.write(xmlutil.getText(node)+'\n')
-        out.write('\n\n\t\t\t\t\t --------- Summary --------\n\n')
-        self.locationList.writeEvaluationForm(out)
-        self.subjectList.writeEvaluationForm(out)
-        self.outcomeList.writeEvaluationForm(out)
-        out.write('\nCOMMENTS:\n\n\n\n')
-        out.close()

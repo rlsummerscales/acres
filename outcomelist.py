@@ -198,49 +198,6 @@ class OutcomeList:
 
         return outcomeListNode
 
-    def writeOutcomeEvaluationForm(self, template, out, primary=False):
-        textevaluationform.writeEvaluationElement(template.getCanonicalName(), out)
-        if primary:
-            textevaluationform.writeEvaluationElement('type: primary', out, indentLevel=1)
-
-        for ssTemplate in template.summaryStats:
-            out.write(textevaluationform.bullet(1)+'Endpoint:\n')
-            out.write(textevaluationform.bullet(2)+'Less effective:'+ ssTemplate.lessEffective.getGroup().name +': ')
-            out.write(ssTemplate.lessEffective.statisticString())
-            out.write('\n')
-            out.write(textevaluationform.bullet(2)+'More effective:'+ ssTemplate.moreEffective.getGroup().name +': ')
-            out.write(ssTemplate.moreEffective.statisticString())
-            out.write('\n')
-            rLabel = ssTemplate.riskType()
-            nnLabel = ssTemplate.numberNeededType()
-
-            out.write(textevaluationform.bullet(2)+rLabel+ ': ' + ssTemplate.arrString())
-            if ssTemplate.hasConfidenceIntervals():
-                out.write(',  95% confidence interval ['+ssTemplate.arrLowerBound())
-                out.write(',' + ssTemplate.arrUpperBound() + ']')
-            out.write('\n')
-
-            if ssTemplate.infiniteNumberNeeded() == False:
-                out.write(textevaluationform.bullet(2)+nnLabel+ ': ' + ssTemplate.nntString())
-                if ssTemplate.hasConfidenceIntervals():
-                    out.write(',  95% confidence interval ['+ ssTemplate.nntLowerBound())
-                    out.write(ssTemplate.nntUpperBound()+']')
-            out.write('\n')
-            out.write(textevaluationform.evaluationPrompt(indentLevel=3))
-
-        for omTemplate in template.unusedNumbers:
-            if omTemplate.getGroup() != None:
-                if omTemplate.getTime() != None:
-                    time = ' ('+omTemplate.getTime().name+')'
-                else:
-                    time = ''
-                out.write(textevaluationform.bullet(1)+'Endpoint:\n')
-                out.write(textevaluationform.bullet(2)+ omTemplate.getGroup().name + ': ' )
-                out.write(omTemplate.statisticString())
-                out.write('\n')
-                out.write(textevaluationform.evaluationPrompt(indentLevel=3))
-
-
     def writeOutcomeHTML(self, oTemplate, out, showError):
         """ write a given outcome to HTML stream """
         out.write('<li>'+oTemplate.getCanonicalName()+'<ul>\n')
@@ -292,25 +249,19 @@ class OutcomeList:
     def writeHTML(self, out, showError):
         """ write outcome list information to given output stream in html format. """
         out.write('<h3>Outcomes</h3>\n')
-        out.write('<b>Primary Outcomes:</b><ul>')
+        # out.write('<b>Primary Outcomes:</b>')
+        out.write('<ul>\n')
         for oTemplate in self.primaryOutcomes:
             self.writeOutcomeHTML(oTemplate, out, showError)
         out.write('</ul>\n')
 
-        out.write('<b>Secondary Outcomes:</b><ul>')
+        # out.write('<b>Secondary Outcomes:</b>')
+        out.write('<ul>\n')
         for oTemplate in self.secondaryOutcomes:
             self.writeOutcomeHTML(oTemplate, out, showError)
         out.write('</ul>\n')
 
 
-    def writeEvaluationForm(self, out):
-        out.write('OUTCOMES:\n\n')
-        for oTemplate in self.primaryOutcomes:
-            self.writeOutcomeEvaluationForm(oTemplate, out, primary=True)
 
-        for oTemplate in self.secondaryOutcomes:
-            self.writeOutcomeEvaluationForm(oTemplate, out, primary=False)
-
-        textevaluationform.writeElementsMissing('outcomes', out)
   
 

@@ -37,7 +37,7 @@ class MegamTokenClassifier(BaseTokenClassifier):
       cType = 'multiclass'
     else:
       cType = 'binary'
-    cmd = 'bin/megam.opt -quiet  %s %s > %s' %(cType, featureFilename, modelFilename)
+    cmd = 'scripts/megam.opt -quiet  %s %s > %s' %(cType, featureFilename, modelFilename)
 #    cmd = 'bin/megam.opt -quiet -tune binary ' + featureFilename + ' > ' \
 #      + modelFilename
     print cmd  
@@ -56,7 +56,7 @@ class MegamTokenClassifier(BaseTokenClassifier):
       cType = 'multiclass'
     else:
       cType = 'binary'
-    cmd = 'bin/megam.opt -quiet -predict %s %s %s > %s' %(modelFilename, cType, featureFilename, labeledFilename)
+    cmd = 'scripts/megam.opt -quiet -predict %s %s %s > %s' %(modelFilename, cType, featureFilename, labeledFilename)
 #    cmd = 'bin/megam.opt -quiet -predict ' + modelFilename + ' binary ' \
 #       + featureFilename + ' > ' + labeledFilename 
     print cmd
