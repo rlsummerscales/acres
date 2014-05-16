@@ -7,22 +7,20 @@
 
 import math
 
-from baseassociator import BaseOutcomeMeasurementAssociator
-from baseassociator import FeatureVector
-from baseassociator import OutcomeMeasurementAssociation
-from mentionquantityassociator import MentionQuantityAssociator
-from findertask import FinderTask
+import baseassociator
+import mentionquantityassociator
+import findertask
 
-from munkres import Munkres, print_matrix, make_cost_matrix
+import munkres
 
-class OutcomeMeasurementAssociator(BaseOutcomeMeasurementAssociator):
+class OutcomeMeasurementAssociator(baseassociator.BaseOutcomeMeasurementAssociator):
     """ train/test system that associates eventrates and outcome numbers with groups and outcomes """
 
     probabilityEstimatorTasks = []
 
     def __init__(self, modelPath, useLabels=True, considerPreviousSentences=True):
         """ create a new group size, group associator. """
-        BaseOutcomeMeasurementAssociator.__init__(self, useLabels)
+        baseassociator.BaseOutcomeMeasurementAssociator.__init__(self, useLabels)
         self.finderType = 'om-associator'
 
         probEstimators = []
@@ -32,7 +30,7 @@ class OutcomeMeasurementAssociator(BaseOutcomeMeasurementAssociator):
 
         self.probabilityEstimatorTasks = []
         for finder in probEstimators:
-            finderTask = FinderTask(finder, modelPath=modelPath)
+            finderTask = findertask.FinderTask(finder, modelPath=modelPath)
             self.probabilityEstimatorTasks.append(finderTask)
 
 
@@ -254,8 +252,8 @@ class OutcomeMeasurementAssociator(BaseOutcomeMeasurementAssociator):
             #            (group, outcome) = goPairs[goIdx]
             #            print probMatrix[omIdx][goIdx], om.statisticString(), group.name, outcome.name
 
-        costMatrix = make_cost_matrix(probMatrix, lambda cost: probMultiplier - cost)
-        m = Munkres()
+        costMatrix = munkres.make_cost_matrix(probMatrix, lambda cost: probMultiplier - cost)
+        m = munkres.Munkres()
         #    print probMatrix
         #    print costMatrix
         indices = m.compute(costMatrix)
@@ -285,7 +283,7 @@ class OutcomeMeasurementAssociator(BaseOutcomeMeasurementAssociator):
                 abstract = sentence.abstract
                 if abstract not in self.incompleteMatches:
                     self.incompleteMatches[abstract] = []
-                self.incompleteMatches[abstract].append(OutcomeMeasurementAssociation(group, outcome, om, prob))
+                self.incompleteMatches[abstract].append(baseassociator.OutcomeMeasurementAssociation(group, outcome, om, prob))
 
 
 
@@ -295,13 +293,13 @@ class OutcomeMeasurementAssociator(BaseOutcomeMeasurementAssociator):
 # class definition for object that associates mentions with eventrates and outcome numbers
 #######################################################################
 
-class OutcomeMeasurementPairProbabilityEstimator(MentionQuantityAssociator):
+class OutcomeMeasurementPairProbabilityEstimator(mentionquantityassociator.MentionQuantityAssociator):
     """ train/test system that associates eventrates and outcome numbers with groups and outcomes """
     considerPreviousSentences = True
 
     def __init__(self, mentionType, quantityType, useLabels=True, considerPreviousSentences=True):
         """ create a new group size, group associator. """
-        MentionQuantityAssociator.__init__(self, mentionType, quantityType, useLabels)
+        mentionquantityassociator.MentionQuantityAssociator.__init__(self, mentionType, quantityType, useLabels)
         self.considerPreviousSentences = considerPreviousSentences
 
     def computeTemplateFeatures(self, templates, mode=''):
@@ -352,7 +350,7 @@ class OutcomeMeasurementPairProbabilityEstimator(MentionQuantityAssociator):
                         label = '1'
                     else:
                         label = '0'
-                    fv = FeatureVector(qIdx, mIdx, label)
+                    fv = baseassociator.FeatureVector(qIdx, mIdx, label)
                     fv.mTemplate = mTemplate
                     fv.qTemplate = qTemplate
                     templates.featureVectors.append(fv)

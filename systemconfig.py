@@ -8,80 +8,71 @@ import sys
 import sentencefilters
 import finderfilters
 
-from abstractlist import AbstractList
-from findertask import FinderTask
-from findertask import DefaultFinder
-from mentionfinder import MentionFinder
-from bannermentionfinder import BannerMentionFinder
-from gimlimentionfinder import GimliMentionFinder
-from dictionaryfinder import DictionaryFinder
-from timefinder import TimeFinder
-from thresholdfinder import ThresholdFinder
-from populationfinder import PopulationFinder
-from locationfinder import LocationFinder
-from agefinder import AgeFinder
-from primaryoutcomefinder import PrimaryOutcomeFinder
-from numberfinder import NumberFinder
-from baselinenumberfinder import BaselineNumberFinder
-from costvaluefinder import CostValueFinder
-from costtermfinder import CostTermFinder
+import abstractlist
+import findertask
+import mentionfinder
+import bannermentionfinder
+import timefinder
+import agefinder
+import primaryoutcomefinder
+import numberfinder
+import baselinenumberfinder
+import costvaluefinder
+import costtermfinder
 
-from annotatedmentionfinder import AnnotatedMentionFinder
-from randommentionfinder import RandomMentionFinder
-from ensemble import EnsembleFinder
-from mallet import MalletTokenClassifier
-from megam import MegamTokenClassifier
-from labelingreranker import LabelingReRanker
-from crossvalidate import CrossValidationSets
-from irstats import IRstats
-from statlist import StatList
+import annotatedmentionfinder
+import randommentionfinder
+import ensemble
+import mallet
+import labelingreranker
+import crossvalidate
+import statlist
 
-from mentionquantityassociator import MentionQuantityAssociator
-from trueoutcomemeasurementassociator import TrueOutcomeMeasurementAssociator
-from baselinementionquantityassociator import BaselineMentionQuantityAssociator
-from groupsizegroupassociator import GroupSizeGroupAssociator
-from outcomemeasurementassociator import OutcomeMeasurementAssociator
-from baselineoutcomemeasurementassociator import BaselineOutcomeMeasurementAssociator
+import trueoutcomemeasurementassociator
+import baselinementionquantityassociator
+import groupsizegroupassociator
+import outcomemeasurementassociator
+import baselineoutcomemeasurementassociator
+import costeffectivenessassociator
 
-from rulebasedmentionclusterer import RuleBasedMentionClusterer
-from baselinementionclusterer import BaselineMentionClusterer
-from truementionclusterer import TrueMentionClusterer
-from clustermentions import MentionClusterer
+import rulebasedmentionclusterer
+import baselinementionclusterer
+import truementionclusterer
 
-from summarylist import SummaryList
+import summarylist
 
-from outcomemeasurementlinker import RuleBasedOutcomeMeasurementLinker
-from trueoutcomemeasurementlinker import TrueOutcomeMeasurementLinker
+import outcomemeasurementlinker
+import trueoutcomemeasurementlinker
+
 
 def deleteAllXMLFiles(path):
     """ delete all xml files in a given directory """
     if len(path) > 0 and path[-1] != '/':
-        path = path + '/'
+        path += '/'
 
-    filelist = glob.glob(path+'*.xml')
+    filelist = glob.glob(path + '*.xml')
     for file in filelist:
         #    print 'Deleting:', file
         os.remove(file)
+
 
 def deleteAllModelFiles(path):
     """ delete all model files in a given directory """
     if len(path) > 0 and path[-1] != '/':
         path = path + '/'
 
-    filelist = glob.glob(path+'*')
+    filelist = glob.glob(path + '*')
     for file in filelist:
         #    print 'Deleting:', file
         os.remove(file)
 
 
-
-
 class RunConfiguration:
     name = None
     mentionOutputPath = None
-    numberOutputPath=None
-    summaryPath=None
-    outputPath=None
+    numberOutputPath = None
+    summaryPath = None
+    outputPath = None
     mentionFinderType = None
     mentionTypes = None
     numberTypes = None
@@ -102,7 +93,7 @@ class RunConfiguration:
     outcomeFilter = []
     conditionFilter = []
 
-    pairTypeList = [['group', 'gs'], ['outcome', 'on'], ['outcome', 'eventrate'], \
+    pairTypeList = [['group', 'gs'], ['outcome', 'on'], ['outcome', 'eventrate'],
                     ['group', 'on'], ['group', 'eventrate']]
 
     ruleFinderTasks = []
@@ -122,7 +113,7 @@ class RunConfiguration:
 
     rerankLabelings = False
     postFilterResults = True
-    useReport=True
+    useReport = True
 
     def __init__(self, name,
                  mentionTypes=['condition', 'group', 'outcome'],
@@ -141,9 +132,9 @@ class RunConfiguration:
                  useTrialReports=True):
         self.name = name
         self.mentionOutputPath = 'output/mentions'
-        self.numberOutputPath='output/numbers'
-        self.summaryPath='output/summaries'
-        self.outputPath='output/error'
+        self.numberOutputPath = 'output/numbers'
+        self.summaryPath = 'output/summaries'
+        self.outputPath = 'output/error'
         self.mentionFinderType = mentionFinderType
         self.numberSentenceFilter = sentencefilters.numberSentencesOnly
         self.groupSentenceFilter = sentencefilters.candidateGroupSentences
@@ -184,21 +175,20 @@ class RunConfiguration:
         self.entityTypes = mentionTypes
         self.ruleTypes = ruleTypes
         self.ruleFinderTasks = []
-        self.ruleFinderTasks.append(FinderTask(TimeFinder()))
+        self.ruleFinderTasks.append(findertask.FinderTask(timefinder.TimeFinder()))
         #    self.ruleFinderTasks.append(FinderTask(ThresholdFinder()))
         if mentionFinderType == 'annotated':
-            ageFinder = AnnotatedMentionFinder(['age'])
+            ageFinder = annotatedmentionfinder.AnnotatedMentionFinder(['age'])
         else:
-            ageFinder = AgeFinder()
-        self.ruleFinderTasks.append(FinderTask(ageFinder, finderFilters=[finderfilters.AgeFilter]))
+            ageFinder = agefinder.AgeFinder()
+        self.ruleFinderTasks.append(findertask.FinderTask(ageFinder, finderFilters=[finderfilters.AgeFilter]))
 
         #    self.ruleFinderTasks.append(FinderTask(PopulationFinder()))
         #    self.ruleFinderTasks.append(FinderTask(LocationFinder()))
-        self.ruleFinderTasks.append(FinderTask(PrimaryOutcomeFinder()))
+        self.ruleFinderTasks.append(findertask.FinderTask(primaryoutcomefinder.PrimaryOutcomeFinder()))
 
-        self.ruleFinderTasks.append(FinderTask(CostValueFinder()))
-        self.ruleFinderTasks.append(FinderTask(CostTermFinder()))
-
+        self.ruleFinderTasks.append(findertask.FinderTask(costvaluefinder.CostValueFinder()))
+        self.ruleFinderTasks.append(findertask.FinderTask(costtermfinder.CostTermFinder()))
 
         self.mentionQuantityAssociatorTasks = []
         self.mentionClusterTasks = []
@@ -207,19 +197,21 @@ class RunConfiguration:
         nEnsembleClassifiers = 5
 
         perTrain = 0.7
-        self.randomSeed=randomSeed
-        print 'Random seed =',self.randomSeed
+        self.randomSeed = randomSeed
+        print 'Random seed =', self.randomSeed
 
 
 
         # select number finder
         if numberFinderType == 'number':
-            tClassifier = MalletTokenClassifier(order=1, fullyConnected=False, nIterations=100, topK=1)
+            tClassifier = mallet.MalletTokenClassifier(order=1, fullyConnected=False, nIterations=100, topK=1)
             #      tClassifier = MalletTokenClassifier(order=1, fullyConnected=True)
             #     tClassifier = MegamTokenClassifier(0.5)
 
-            erFinder = NumberFinder(['eventrate'], tokenClassifier = tClassifier, useReport=self.useTrialReports)
-            numberFinder = NumberFinder(['on','gs'], tokenClassifier = tClassifier, useReport=self.useTrialReports)
+            erFinder = numberfinder.NumberFinder(['eventrate'], tokenClassifier=tClassifier,
+                                                 useReport=self.useTrialReports)
+            numberFinder = numberfinder.NumberFinder(['on', 'gs'], tokenClassifier=tClassifier,
+                                                     useReport=self.useTrialReports)
         #      erFinder = EnsembleFinder(erFinder, nClassifiers=nEnsembleClassifiers, modelPath=self.mPath, \
         #                                percentOfTraining=perTrain, duplicatesAllowed=True,\
         #                                randomSeed=self.randomSeed)
@@ -229,43 +221,45 @@ class RunConfiguration:
 
         elif numberFinderType == 'annotated':
             erFinder = None
-            numberFinder = AnnotatedMentionFinder(self.numberTypes)
+            numberFinder = annotatedmentionfinder.AnnotatedMentionFinder(self.numberTypes)
             self.numberFilters = []
         elif numberFinderType == 'baseline':
             erFinder = None
-            numberFinder = BaselineNumberFinder(self.numberTypes)
+            numberFinder = baselinenumberfinder.BaselineNumberFinder(self.numberTypes)
             self.numberFilters = []
         else:
             print 'Error: unknown number finder =', numberFinderType
             sys.exit()
 
-        tClassifier = MalletTokenClassifier(order=1, fullyConnected=True, nIterations=100, topK=15)
+        tClassifier = mallet.MalletTokenClassifier(order=1, fullyConnected=True, nIterations=100, topK=15)
 
         #      tClassifier = MegamTokenClassifier(0.5)
 
 
         # select mention finder
         if mentionFinderType == 'mention':
-            outcomeFinder = MentionFinder(['outcome'], tokenClassifier=tClassifier, \
-                                          labelFeatures=self.ruleTypes, useReport=self.useTrialReports, randomSeed=self.randomSeed)
-            groupFinder = MentionFinder(['group'], tokenClassifier=tClassifier, \
-                                        labelFeatures=self.ruleTypes, useReport=self.useTrialReports, randomSeed=self.randomSeed)
-            conditionFinder = MentionFinder(['condition'], tokenClassifier=tClassifier, \
-                                            labelFeatures=self.ruleTypes, \
-                                            useReport=self.useTrialReports, randomSeed=self.randomSeed)
+            outcomeFinder = mentionfinder.MentionFinder(['outcome'], tokenClassifier=tClassifier,
+                                                        labelFeatures=self.ruleTypes, useReport=self.useTrialReports,
+                                                        randomSeed=self.randomSeed)
+            groupFinder = mentionfinder.MentionFinder(['group'], tokenClassifier=tClassifier,
+                                                      labelFeatures=self.ruleTypes, useReport=self.useTrialReports,
+                                                      randomSeed=self.randomSeed)
+            conditionFinder = mentionfinder.MentionFinder(['condition'], tokenClassifier=tClassifier,
+                                                          labelFeatures=self.ruleTypes,
+                                                          useReport=self.useTrialReports, randomSeed=self.randomSeed)
 
             if useEnsemble:
-                oeType='abstract'
+                oeType = 'abstract'
                 #      geType='abstract'
                 ##      geType='featureType'
                 #      ceType = 'abstract'
                 #        cOther = False
                 #        cOther = True
 
-                outcomeFinder = EnsembleFinder(oeType, outcomeFinder, nClassifiers=nEnsembleClassifiers, \
-                                               modelPath=self.mPath, rerankType=self.rerankType, \
-                                               percentOfTraining=perTrain, duplicatesAllowed=True, \
-                                               randomSeed=self.randomSeed)
+                outcomeFinder = ensemble.EnsembleFinder(oeType, outcomeFinder, nClassifiers=nEnsembleClassifiers,
+                                                        modelPath=self.mPath, rerankType=self.rerankType,
+                                                        percentOfTraining=perTrain, duplicatesAllowed=True,
+                                                        randomSeed=self.randomSeed)
 
                 #      groupFinder = EnsembleFinder(geType, groupFinder,  nClassifiers=nEnsembleClassifiers, \
                 #                                   modelPath=self.mPath, \
@@ -282,23 +276,23 @@ class RunConfiguration:
             self.outcomeFilters = [finderfilters.OutcomeFilter]
             self.conditionFilters = []
         elif mentionFinderType == 'random':
-            outcomeFinder = RandomMentionFinder(['outcome'], self.randomSeed, desiredRecall)
-            groupFinder = RandomMentionFinder(['group'], self.randomSeed, desiredRecall)
-            conditionFinder = RandomMentionFinder(['condition'], self.randomSeed, desiredRecall)
+            outcomeFinder = randommentionfinder.RandomMentionFinder(['outcome'], self.randomSeed, desiredRecall)
+            groupFinder = randommentionfinder.RandomMentionFinder(['group'], self.randomSeed, desiredRecall)
+            conditionFinder = randommentionfinder.RandomMentionFinder(['condition'], self.randomSeed, desiredRecall)
             self.groupFilters = []
             self.outcomeFilters = []
             self.conditionFilters = []
         elif mentionFinderType == 'annotated':
-            outcomeFinder = AnnotatedMentionFinder(['outcome'])
-            groupFinder = AnnotatedMentionFinder(['group'])
-            conditionFinder = AnnotatedMentionFinder(['condition'])
+            outcomeFinder = annotatedmentionfinder.AnnotatedMentionFinder(['outcome'])
+            groupFinder = annotatedmentionfinder.AnnotatedMentionFinder(['group'])
+            conditionFinder = annotatedmentionfinder.AnnotatedMentionFinder(['condition'])
             self.groupFilters = []
             self.outcomeFilters = []
             self.conditionFilters = []
         elif mentionFinderType == 'banner':
-            outcomeFinder = BannerMentionFinder(['outcome'])
-            groupFinder = BannerMentionFinder(['group'])
-            conditionFinder = BannerMentionFinder(['condition'])
+            outcomeFinder = bannermentionfinder.BannerMentionFinder(['outcome'])
+            groupFinder = bannermentionfinder.BannerMentionFinder(['group'])
+            conditionFinder = bannermentionfinder.BannerMentionFinder(['condition'])
             self.groupFilters = []
             self.outcomeFilters = []
             self.groupFilters = [finderfilters.GroupFilter]
@@ -309,29 +303,31 @@ class RunConfiguration:
             sys.exit()
 
         if self.rerankLabelings:
-            labelingReRanker = LabelingReRanker(groupFinder=groupFinder, outcomeFinder=outcomeFinder, \
-                                                eventrateFinder=erFinder, numberFinder=numberFinder, \
-                                                modelPath=self.mPath, jointAssignment=False, useRules=True, maxTopK=3, theta=0.3)
+            labelingReRanker = labelingreranker.LabelingReRanker(groupFinder=groupFinder, outcomeFinder=outcomeFinder,
+                                                                 eventrateFinder=erFinder, numberFinder=numberFinder,
+                                                                 modelPath=self.mPath, jointAssignment=False,
+                                                                 useRules=True, maxTopK=3, theta=0.3)
         else:
             labelingReRanker = None
-
 
         # select mention quantity associator
         mqaFinders = []
         if mentionQuantityAssociator == 'classifier':
-            gsGroupAssoc = GroupSizeGroupAssociator()
-            on_er_associator = RuleBasedOutcomeMeasurementLinker()
-            omAssoc = OutcomeMeasurementAssociator(modelPath=self.mPath, considerPreviousSentences=False)
-            mqaFinders = [gsGroupAssoc, omAssoc]
+            gsGroupAssoc = groupsizegroupassociator.GroupSizeGroupAssociator()
+            on_er_associator = outcomemeasurementlinker.RuleBasedOutcomeMeasurementLinker()
+            omAssoc = outcomemeasurementassociator.OutcomeMeasurementAssociator(modelPath=self.mPath,
+                                                                                considerPreviousSentences=False)
+            cvAssoc = costeffectivenessassociator.CostEffectivenessAssociator(modelPath=self.mPath, algorithm='hungarian')
+            mqaFinders = [gsGroupAssoc, omAssoc, cvAssoc]
         elif mentionQuantityAssociator == 'annotated':
-            on_er_associator = TrueOutcomeMeasurementLinker()
-            omAssoc = TrueOutcomeMeasurementAssociator()
+            on_er_associator = trueoutcomemeasurementlinker.TrueOutcomeMeasurementLinker()
+            omAssoc = trueoutcomemeasurementassociator.TrueOutcomeMeasurementAssociator()
             mqaFinders = [omAssoc]
         elif mentionQuantityAssociator == 'baseline':
             on_er_associator = None
             #      on_er_associator = RuleBasedOutcomeMeasurementLinker()
-            gsGroupAssoc = BaselineMentionQuantityAssociator('group', 'gs')
-            omAssoc = BaselineOutcomeMeasurementAssociator()
+            gsGroupAssoc = baselinementionquantityassociator.BaselineMentionQuantityAssociator('group', 'gs')
+            omAssoc = baselineoutcomemeasurementassociator.BaselineOutcomeMeasurementAssociator()
             mqaFinders = [gsGroupAssoc, omAssoc]
         else:
             print 'Error: unknown mention quantity associator =', mentionQuantityAssociator
@@ -344,69 +340,72 @@ class RunConfiguration:
         sFilter['outcome'] = self.outcomeSentenceFilter
         sFilter['condition'] = self.conditionSentenceFilter
         if mentionClusterType == 'classifier':
-            groupClusterFinder = RuleBasedMentionClusterer('group', sFilter['group'])
-            outcomeClusterFinder = RuleBasedMentionClusterer('outcome', sFilter['outcome'])
-            conditionClusterFinder = RuleBasedMentionClusterer('condition', sFilter['condition'])
+            groupClusterFinder = rulebasedmentionclusterer.RuleBasedMentionClusterer('group', sFilter['group'])
+            outcomeClusterFinder = rulebasedmentionclusterer.RuleBasedMentionClusterer('outcome', sFilter['outcome'])
+            conditionClusterFinder = rulebasedmentionclusterer.RuleBasedMentionClusterer('condition',
+                                                                                         sFilter['condition'])
 
             #      conditionClusterFinder = MentionClusterer('condition', sFilter['condition'], \
             #                                         threshold=0.5)
-            self.groupClusterFilters=[finderfilters.groupClusterFilter]
-            self.outcomeClusterFilters=[finderfilters.outcomeClusterFilter]
+            self.groupClusterFilters = [finderfilters.groupClusterFilter]
+            self.outcomeClusterFilters = [finderfilters.outcomeClusterFilter]
         elif mentionClusterType == 'annotated':
-            groupClusterFinder = TrueMentionClusterer('group', sFilter['group'])
-            outcomeClusterFinder = TrueMentionClusterer('outcome', sFilter['outcome'])
-            conditionClusterFinder = TrueMentionClusterer('condition', sFilter['condition'])
-            self.groupClusterFilters=[]
-            self.outcomeClusterFilters=[]
+            groupClusterFinder = truementionclusterer.TrueMentionClusterer('group', sFilter['group'])
+            outcomeClusterFinder = truementionclusterer.TrueMentionClusterer('outcome', sFilter['outcome'])
+            conditionClusterFinder = truementionclusterer.TrueMentionClusterer('condition', sFilter['condition'])
+            self.groupClusterFilters = []
+            self.outcomeClusterFilters = []
         elif mentionClusterType == 'baseline':
-            groupClusterFinder = BaselineMentionClusterer('group', sFilter['group'])
-            outcomeClusterFinder = BaselineMentionClusterer('outcome', sFilter['outcome'])
-            conditionClusterFinder = BaselineMentionClusterer('condition', sFilter['condition'])
-            self.groupClusterFilters=[]
-            self.outcomeClusterFilters=[]
+            groupClusterFinder = baselinementionclusterer.BaselineMentionClusterer('group', sFilter['group'])
+            outcomeClusterFinder = baselinementionclusterer.BaselineMentionClusterer('outcome', sFilter['outcome'])
+            conditionClusterFinder = baselinementionclusterer.BaselineMentionClusterer('condition',
+                                                                                       sFilter['condition'])
+            self.groupClusterFilters = []
+            self.outcomeClusterFilters = []
         else:
             print 'Error: unknown mention clusterer =', mentionClusterType
             sys.exit()
 
         # create tasks
-        self.eventrateFinderTask = FinderTask(erFinder, \
-                                              finderFilters=self.numberFilters, \
-                                              modelFilename='erfinder.model', modelPath=self.mPath)
+        self.eventrateFinderTask = findertask.FinderTask(erFinder,
+                                                         finderFilters=self.numberFilters,
+                                                         modelFilename='erfinder.model', modelPath=self.mPath)
 
-        self.numberFinderTask = FinderTask(numberFinder, \
-                                           finderFilters=self.numberFilters, \
-                                           modelFilename='numberfinder.model', modelPath=self.mPath)
+        self.numberFinderTask = findertask.FinderTask(numberFinder,
+                                                      finderFilters=self.numberFilters,
+                                                      modelFilename='numberfinder.model', modelPath=self.mPath)
 
-        self.outcomeFinderTask = FinderTask(outcomeFinder, \
-                                            finderFilters=self.outcomeFilters, \
-                                            modelFilename='outcomefinder.model', modelPath=self.mPath)
-        self.groupFinderTask = FinderTask(groupFinder, \
-                                          finderFilters=self.groupFilters, \
-                                          modelFilename='groupfinder.model', modelPath=self.mPath)
+        self.outcomeFinderTask = findertask.FinderTask(outcomeFinder,
+                                                       finderFilters=self.outcomeFilters,
+                                                       modelFilename='outcomefinder.model', modelPath=self.mPath)
+        self.groupFinderTask = findertask.FinderTask(groupFinder,
+                                                     finderFilters=self.groupFilters,
+                                                     modelFilename='groupfinder.model', modelPath=self.mPath)
 
-        self.conditionFinderTask = FinderTask(conditionFinder, \
-                                              finderFilters=self.conditionFilters, \
-                                              modelFilename='conditionfinder.model', modelPath=self.mPath)
+        self.conditionFinderTask = findertask.FinderTask(conditionFinder,
+                                                         finderFilters=self.conditionFilters,
+                                                         modelFilename='conditionfinder.model', modelPath=self.mPath)
 
         #    self.everythingFinderTask = FinderTask(everythingFinder, \
         #            finderFilters=self.conditionFilters+self.groupFilters+self.outcomeFilter+self.numberFilters, \
         #            modelFilename='everythingfinder.model', modelPath=self.mPath)
 
-        self.labelingReRankerTask = FinderTask(labelingReRanker, \
-                                               finderFilters=self.conditionFilters+self.groupFilters+self.outcomeFilter+self.numberFilters, \
-                                               modelFilename='reranker.model', modelPath=self.mPath)
+        self.labelingReRankerTask = findertask.FinderTask(labelingReRanker,
+                                                          finderFilters=self.conditionFilters + self.groupFilters
+                                                                        + self.outcomeFilter + self.numberFilters,
+                                                          modelFilename='reranker.model', modelPath=self.mPath)
 
-        self.outcomeMeasurementLinker = FinderTask(on_er_associator, modelPath=self.mPath)
+        self.outcomeMeasurementLinker = findertask.FinderTask(on_er_associator, modelPath=self.mPath)
 
         for finder in mqaFinders:
-            finderTask = FinderTask(finder, modelPath=self.mPath)
+            finderTask = findertask.FinderTask(finder, modelPath=self.mPath)
             self.mentionQuantityAssociatorTasks.append(finderTask)
 
-        self.groupClusterTask = FinderTask(groupClusterFinder, finderFilters=self.groupClusterFilters, \
-                                           modelPath=self.mPath)
-        self.outcomeClusterTask = FinderTask(outcomeClusterFinder, finderFilters=self.outcomeClusterFilters, \
-                                             modelPath=self.mPath)
-        self.conditionClusterTask = FinderTask(conditionClusterFinder, modelPath=self.mPath)
+        self.groupClusterTask = findertask.FinderTask(groupClusterFinder, finderFilters=self.groupClusterFilters,
+                                                      modelPath=self.mPath)
+        self.outcomeClusterTask = findertask.FinderTask(outcomeClusterFinder, finderFilters=self.outcomeClusterFilters,
+                                                        modelPath=self.mPath)
+        self.conditionClusterTask = findertask.FinderTask(conditionClusterFinder, modelPath=self.mPath)
 
     #############################################################################################
     #    TRAINING
@@ -416,10 +415,9 @@ class RunConfiguration:
     def train(self, trainPath, statOut=None):
         """ train models """
         #    deleteAllModelFiles(self.mPath)
-        absList = AbstractList(trainPath, sentenceFilter=sentencefilters.allSentences, \
-                               loadRegistries=False)
+        absList = abstractlist.AbstractList(trainPath, sentenceFilter=sentencefilters.allSentences,
+                                            loadRegistries=False)
         self.trainOnAbstracts(absList, statOut)
-
 
 
     def trainOnAbstracts(self, absList, statOut=None):
@@ -447,7 +445,6 @@ class RunConfiguration:
             absList.applySentenceFilter(self.numberSentenceFilter)
             self.labelingReRankerTask.train(absList)
 
-
         absList.applySentenceFilter(sentencefilters.allSentences)
         # compute templates
         absList.createTemplates(useLabels=False)
@@ -467,7 +464,6 @@ class RunConfiguration:
         gc.collect()
 
 
-
     #############################################################################################
     #    TESTING
     #############################################################################################
@@ -477,11 +473,10 @@ class RunConfiguration:
     def test(self, testPath, statOut, abstractPath=None):
         deleteAllXMLFiles(self.summaryPath)
         # test on given files
-        absList = AbstractList(testPath, sentenceFilter=sentencefilters.allSentences, \
-                               loadRegistries=False)
+        absList = abstractlist.AbstractList(testPath, sentenceFilter=sentencefilters.allSentences, \
+                                            loadRegistries=False)
 
         self.testOnAbstracts(absList, statOut, abstractPath)
-
 
 
     def testOnAbstracts(self, absList, statOut, abstractPath=None, writeSummaries=True, foldIndex=None):
@@ -516,7 +511,8 @@ class RunConfiguration:
 
             absList.applySentenceFilter(self.numberSentenceFilter)
             #      absList.applySentenceFilter(self.outcomeSentenceFilter)
-            self.outcomeFinderTask.finder.rerankLabelsAndAssign(absList, rerankType=self.rerankType, topKMax=3, fold=foldIndex)
+            self.outcomeFinderTask.finder.rerankLabelsAndAssign(absList, rerankType=self.rerankType, topKMax=3,
+                                                                fold=foldIndex)
             self.outcomeFinderTask.computeStats(absList, statOut, fold=foldIndex)
 
 
@@ -574,8 +570,9 @@ class RunConfiguration:
 
         # Compute summary statistics
         print 'Computing summaries...'
-        summaryList = SummaryList(absList, statOut, False, self.useTrialReports, errorFilename=summaryErrorFilename, \
-                                  summaryStatErrorFilename=summaryStatErrorFilename)
+        summaryList = summarylist.SummaryList(absList, statOut, False, self.useTrialReports,
+                                              errorFilename=summaryErrorFilename, \
+                                              summaryStatErrorFilename=summaryStatErrorFilename)
 
 
         # write summaries
@@ -586,7 +583,7 @@ class RunConfiguration:
         #    if abstractPath != None:
         #      summaryList.writeEvaluationForm(self.summaryPath, abstractPath)
 
-        summaryList.writeEvaluations('evaluations.'+self.name+'.sql', self.version)
+        summaryList.writeEvaluations('evaluations.' + self.name + '.sql', self.version)
         fName = 'summariesWithStats'
         if foldIndex != None:
             fName = '%s.%02d.txt' % (fName, foldIndex)
@@ -612,7 +609,7 @@ class RunConfiguration:
         deleteAllXMLFiles(self.summaryPath)
         deleteAllModelFiles(self.mPath)
 
-        absList = AbstractList(inputPath, nFolds, sentenceFilter=sentencefilters.allSentences)
+        absList = abstractlist.AbstractList(inputPath, nFolds, sentenceFilter=sentencefilters.allSentences)
 
         svFile = open('specialvalues.txt', 'w')
         for abstract in absList:
@@ -621,42 +618,38 @@ class RunConfiguration:
                 svFile.write('%d: %s\n' % (sentence.index, sentence.toString()))
                 for token in sentence:
                     if token.specialValueType != None:
-                        svFile.write('%s\t\t%s\n'%(token.text, token.specialValueType))
+                        svFile.write('%s\t\t%s\n' % (token.text, token.specialValueType))
         svFile.close()
 
-        cvSets = CrossValidationSets(absList, nFolds, randomSeed=self.randomSeed)
+        cvSets = crossvalidate.CrossValidationSets(absList, nFolds, randomSeed=self.randomSeed)
 
         for i, cs in enumerate(cvSets):
             #      absList.removeLabels()     # delete labels from previous round
-            trainAbstracts = AbstractList()
-            testAbstracts = AbstractList()
+            trainAbstracts = abstractlist.AbstractList()
+            testAbstracts = abstractlist.AbstractList()
             trainAbstracts.copyList(cs.train)
             testAbstracts.copyList(cs.test)
             trainAbstracts.removeLabels()
             testAbstracts.removeLabels()
 
-            print 'Training:',[abstract.id for abstract in trainAbstracts]
-            print 'Test:',[abstract.id for abstract in testAbstracts]
+            print 'Training:', [abstract.id for abstract in trainAbstracts]
+            print 'Test:', [abstract.id for abstract in testAbstracts]
 
-            foldStats = StatList()
+            foldStats = statlist.StatList()
             self.trainOnAbstracts(trainAbstracts, foldStats)
             self.testOnAbstracts(testAbstracts, foldStats, foldIndex=i)
-            foldStats.write('stats.fold%d.txt'%i, ', ')
+            foldStats.write('stats.fold%d.txt' % i, ', ')
             for name, statList in foldStats.irStats.items():
-                statOut.addIRstats(name, statList[-1]) # only add final stats
-
-
-
-
+                statOut.addIRstats(name, statList[-1])  # only add final stats
 
 
     def crossvalidateEachComponent(self, inputPath, statOut):
         """ perform cross-validation """
-        nFolds = 10    # 10-fold crossvalidation
+        nFolds = 10  # 10-fold crossvalidation
         deleteAllXMLFiles(self.summaryPath)
         deleteAllModelFiles(self.mPath)
 
-        absList = AbstractList(inputPath, nFolds, sentenceFilter=sentencefilters.allSentences)
+        absList = abstractlist.AbstractList(inputPath, nFolds, sentenceFilter=sentencefilters.allSentences)
 
         for fTask in self.ruleFinderTasks:
             fTask.test(absList, statOut)
@@ -685,9 +678,9 @@ class RunConfiguration:
             finderTask.crossval(absList, statOut)
 
             # Compute summary statistics
-        summaryList = SummaryList(absList, statOut)
+        summaryList = summarylist.SummaryList(absList, statOut)
 
         # write summaries
         summaryList.writeXML(self.summaryPath, self.version)
-        summaryList.writeHTML('summaries.'+self.name+'.html')
+        summaryList.writeHTML('summaries.' + self.name + '.html')
 
