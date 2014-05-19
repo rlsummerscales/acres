@@ -88,16 +88,16 @@ def findAcronymExpansions(abstract, label):
             for token in mention.tokens:
                 if token.isAcronym():
                     # look for expanded version of acronym
-                    for sentence in abstract.sentences:
-                        for tIdx in range(0, len(sentence)):
+                    for s in abstract.sentences:
+                        for tIdx in range(0, len(s)):
                             i = 0
-                            while tIdx + i < len(sentence) and i < len(token.text) \
-                                    and sentence[tIdx+i].text[0].upper() == token.text[i]:
+                            while tIdx + i < len(s) and i < len(token.text) \
+                                    and s[tIdx+i].text[0].upper() == token.text[i]:
                                 i += 1
                             if i == len(token.text):
                                 # found acronym match, label each token in matching list of tokens
                                 for j in range(tIdx, tIdx+i):
-                                    sentence[j].addLabel(label)
+                                    s[j].addLabel(label)
         sentence.getDetectedMentions(label, recomputeMentions=True)
 
 def OutcomeFilter(abstract):
@@ -106,7 +106,7 @@ def OutcomeFilter(abstract):
     # discard an outcome if it does not contain at least one word of more than one char
     # (that does not refer to a special value such as hazard ratio)
     label = 'outcome'
-    ignoreWords = set(['less', 'greater', 'than'])
+    ignoreWords = {'less', 'greater', 'than'}
     discardStopWordMentions(abstract, label, ignoreWords)
 
     #  findAcronymExpansions(abstract, label)
@@ -119,7 +119,8 @@ def OutcomeFilter(abstract):
     for s in abstract.sentences:
         for t in s:
             if t.hasLabel('cost_term'):
-                t.addLabel('outcome');
+                t.addLabel('outcome')
+
 
 def isEndpointToken(token):
     """ return true if this token is a match for 'outcome', 'endpoint' or part of a match for 'end point' """
@@ -127,14 +128,14 @@ def isEndpointToken(token):
         return True
     elif token.text == 'end':
         nextToken = token.nextToken()
-        if nextToken != None and nextToken.lemma == 'point':
+        if nextToken is not None and nextToken.lemma == 'point':
             return True
 
     return False
 
 def labelMissingPrimarySecondaryOutcomes(abstract):
     """ look for and label common phrases that refer to primary/secondary outcomes """
-    startPhraseSet = set(['primary', 'secondary', 'composite'])
+    startPhraseSet = {'primary', 'secondary', 'composite'}
     for sentence in abstract.sentences:
         phraseStartIdx = -1
         phraseStopIdx = -1
@@ -210,8 +211,8 @@ def NumberFilter(abstract):
         e.g. a number labeled both outcome and outcome number. """
     # set of disjoint mention types. A token should not have a label from more than
     # one of these types.
-    mentionTypes = set(['outcome', 'group', 'condition', 'population', 'age'])
-    numberTypes = set(['on', 'gs', 'eventrate'])
+    mentionTypes = {'outcome', 'group', 'condition', 'population', 'age'}
+    numberTypes = {'on', 'gs', 'eventrate'}
     for sentence in abstract.sentences:
         for nType in numberTypes:
             for token in sentence:
@@ -282,13 +283,13 @@ def umlsRepeats(abstract):
     chunkLabels = {}
     for sentence in abstract.sentences:
         for chunk in sentence.umlsChunks:
-            if chunk.label != None:
+            if chunk.label is not None:
                 if chunk.id in chunkLabels:
                     chunkLabels[chunk.id] = chunk.label
 
     for sentence in abstract.sentences:
         for chunk in sentence.umlsChunks:
-            if chunk.label == None and chunk.id in chunkLabels:
+            if chunk.label is None and chunk.id in chunkLabels:
                 chunk.label = chunkLabels[chunk.id]
                 for token in chunk.getTokens():
                     token.addLabel(chunk.label)
@@ -297,7 +298,7 @@ def umlsRepeats(abstract):
 def findRepeats(abstract, mType):
     """ find untagged token sequences that match those from detected mentions
         and tag them """
-    ignoreWords = set(['a', 'the', 'of', 'in', 'for', 'group', 'groups', 'arm'])
+    ignoreWords = {'a', 'the', 'of', 'in', 'for', 'group', 'groups', 'arm'}
     #  print 'Looking for missed', mType, 'mentions'
     mentions = []
     # build list of detected mentions in abstract
@@ -347,7 +348,7 @@ def findRepeats(abstract, mType):
                         nMatchedTokens = nMatchedTokens + 1
 
 
-                if longestMatch == None:
+                if longestMatch is None:
                     # no match, move to next token
                     i = i + 1
                 else:
@@ -361,7 +362,7 @@ def findRepeats(abstract, mType):
 
 def trimMention(abstract, mType):
     """ remove certain symbols from beginning/end of mention """
-    removeSymbols = set([',', '-LRB-', '-RRB-', '-EOS-'])
+    removeSymbols = {',', '-LRB-', '-RRB-', '-EOS-'}
 
     for sentence in abstract.sentences:
         mentionList = sentence.getDetectedMentions(mType, recomputeMentions=True)
@@ -382,7 +383,7 @@ def addNegationWords(abstract, mType):
         for mention in mentionList:
             firstToken = mention.tokens[0]
             prevToken = firstToken.previousToken()
-            if prevToken != None:
+            if prevToken is not None:
                 if prevToken.isNegationWord():
                     # previous token is a negation word, add it to beginning of mention
                     prevToken.addLabel(mType)
@@ -396,7 +397,8 @@ def filterGroupList(groupTemplateList):
     filteredList = []
     for gTemplate in groupTemplateList:
         if len(groupTemplateList) <= 2 or len(gTemplate.children) > 0 \
-                or gTemplate.getSize() > 0 or len(gTemplate.getOutcomeMeasurements()) > 0:
+                or gTemplate.getSize() > 0 or len(gTemplate.getOutcomeMeasurements()) > 0\
+                or len(gTemplate.costValues) > 0:
             filteredList.append(gTemplate)
         else:
             absId = gTemplate.mention.tokens[0].sentence.abstract.id
