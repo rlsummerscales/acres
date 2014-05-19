@@ -116,7 +116,7 @@ class BaseOutcomeValueTemplate(BaseQuantityTemplate):
 
         self.group = group
         groupFV = self.getMatchFeatures(group)
-        if groupFV != None:
+        if groupFV is not None:
             self.groupProb = groupFV.prob
 
     def addOutcome(self, outcome):
@@ -127,7 +127,7 @@ class BaseOutcomeValueTemplate(BaseQuantityTemplate):
 
         self.outcome = outcome
         outcomeFV = self.getMatchFeatures(outcome)
-        if outcomeFV != None:
+        if outcomeFV is not None:
             self.outcomeProb = outcomeFV.prob
 
     def toString(self):

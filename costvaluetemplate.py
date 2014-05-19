@@ -21,3 +21,13 @@ class CostValue(baseoutcomevaluetemplate.BaseOutcomeValueTemplate):
         """ return a string containing the value and its units
         """
         return self.token.text + ' ' + self.token.getUnits()
+
+    def toString(self):
+        """ return a string containing all relevant info for this value """
+        s = self.valueString()
+        if self.group != None:
+            s += ', GROUP = %s, (%.2f)' % (self.group.name, self.groupProb)
+        if self.outcome != None:
+            s += ', OUTCOME = %s, (%.2f)' % (self.outcome.name, self.outcomeProb)
+        return s
+

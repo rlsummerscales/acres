@@ -169,6 +169,22 @@ class CostEffectivenessAssociator(baseassociator.BaseOutcomeMeasurementAssociato
         group.addCostValue(cv)
         outcome.addCostValue(cv)
 
+    def computeStats(self, absList, statOut=None, errorOut=None, typeList=[]):
+        """ compute RPF stats for associated outcome measurements and group and outcome mentions in a list
+            of abstracts.
+
+            write final RPF stats to statOut
+            write TP/FP/FN to errorOut
+        """
+        # how many of the associations are correct/incorrect?
+        for abstract in absList:
+            errorOut.write('---%s ---\n'%(abstract.id))
+            for s in abstract.sentences:
+                cvList = s.templates.getList('cost_value')
+                for cv in cvList:
+                    errorOut.write(cv.toString() + '\n')
+
+
 
 #######################################################################
 # class definition for object that associates mentions with eventrates and outcome numbers

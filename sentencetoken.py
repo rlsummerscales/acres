@@ -621,6 +621,9 @@ class Token:
             elif self.previousToken() is not None and self.previousToken().isCurrencyWord():
                 self.__units = self.previousToken().text
 
+            if self.__units == '$':
+                self.__units = 'dollars'
+
         return self.__units
 
     def isGroupWord(self):
