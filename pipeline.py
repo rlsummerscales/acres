@@ -3,9 +3,8 @@
 # author: Rodney Summerscales
 
 import sys
-
 import systemconfig
-from statlist import StatList
+import statlist
 
 learningCurve=True    # generate data for learning curves
 learningCurve=False
@@ -174,7 +173,7 @@ abstractPath = 'corpora/ischemia/03-02-12/'
 # Execute all finder tasks
 #
 # file containing statistics for all components
-statList = StatList()
+statList = statlist.StatList()
 
 if crossvalidate == True:
   print '%d-fold cross-validation'%nFolds

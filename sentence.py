@@ -317,8 +317,8 @@ class Sentence:
     def countNumbers(self):
         n = 0
         for t in self.tokens:
-            if t.isImportantNumber():
-                #      if t.isNumber():
+            #if t.isImportantNumber():
+            if t.isNumber():
                 n += 1
         return n
 
