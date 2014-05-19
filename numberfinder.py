@@ -43,7 +43,7 @@ class NumberFinder(MentionFinder):
                 
   def isImportantNumber(self, token):
     """ return true if the token is an integer that we want to label """
-    if token.isImportantNumber():
+    if token.isImportantNumber() and token.hasLabel('cost_value') is False:
       for label in self.entityTypes:
         if self.safeToLabelNumber(token, label):
           return True

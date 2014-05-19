@@ -7,16 +7,16 @@
 """
 
 
-from agetemplate import Age
-from outcomemeasurementtemplates import OutcomeNumber, EventRate
-from costvaluetemplate import CostValue
-from groupsizetemplate import GroupSize
-from grouptemplate import Group
-from outcometemplate import Outcome
-from demographictemplates import Location, Population, Condition
-from timetemplate import Time
-from irstats import IRstats
-from operator import itemgetter
+import agetemplate
+import outcomemeasurementtemplates
+import costvaluetemplate
+import groupsizetemplate
+import grouptemplate
+import outcometemplate
+import demographictemplates
+import timetemplate
+import irstats
+import operator
 
 
 def createMergedList(abstract, type):
@@ -65,7 +65,7 @@ def createAnnotatedMergedList(abstract, type):
 
 def countMatches(annotatedTemplates, detectedTemplates, errorOut):
     """ return RPF statistics given list of annotated and detected entities """
-    stats = IRstats()
+    stats = irstats.IRstats()
     # first find set of matching templates for each detected and annotated template
     potentialMatches = {}
     for aTemplate in annotatedTemplates:
@@ -176,8 +176,8 @@ def countMatches(annotatedTemplates, detectedTemplates, errorOut):
 
             if len(partialMatches) > 0:
                 if aTemplate.matched == False:
-                    partialMatches = sorted(partialMatches, key=itemgetter(1,2))
-                    partialMatches = sorted(partialMatches, key=itemgetter(0), reverse=True)
+                    partialMatches = sorted(partialMatches, key=operator.itemgetter(1,2))
+                    partialMatches = sorted(partialMatches, key=operator.itemgetter(0), reverse=True)
                     dTemplate = partialMatches[0][3]
                     aTemplate.matched = True
                     dTemplate.matched = True
@@ -266,19 +266,19 @@ class Templates:
         for type in self.mentionTypes:
             for mention in mLists[type]:
                 if type == 'population':
-                    template = Population(mention)
+                    template = demographictemplates.Population(mention)
                 elif type == 'age':
-                    template = Age(mention, useAnnotations)
+                    template = agetemplate.Age(mention, useAnnotations)
                 elif type == 'time':
-                    template = Time(mention)
+                    template = timetemplate.Time(mention)
                 elif type == 'location':
-                    template = Location(mention)
+                    template = demographictemplates.Location(mention)
                 elif type == 'condition':
-                    template = Condition(mention, useAnnotations)
+                    template = demographictemplates.Condition(mention, useAnnotations)
                 elif type == 'group':
-                    template = Group(mention, useAnnotations)
+                    template = grouptemplate.Group(mention, useAnnotations)
                 elif type == 'outcome':
-                    template = Outcome(mention, useAnnotations)
+                    template = outcometemplate.Outcome(mention, useAnnotations)
                     if template.isCostTerm():
                         # if the mention is a cost term, it is both an outcome and cost term.
                         # want to maintain a list of both, so we can get easy access to cost terms
@@ -308,16 +308,16 @@ class Templates:
 
 
                 if label == 'gs':
-                    gs = GroupSize(token)
+                    gs = groupsizetemplate.GroupSize(token)
                     self.lists[label].append(gs)
                 elif label == 'eventrate':
-                    er = EventRate(token)
+                    er = outcomemeasurementtemplates.EventRate(token)
                     self.lists[label].append(er)
                 elif label == 'cost_value':
-                    cv = CostValue(token)
+                    cv = costvaluetemplate.CostValue(token)
                     self.lists[label].append(cv)
                 elif label == 'on':
-                    on = OutcomeNumber(token)
+                    on = outcomemeasurementtemplates.OutcomeNumber(token)
                     self.lists[label].append(on)
                     if i+2 < len(sentence.tokens):
                         t2 = sentence[i+1]
@@ -325,7 +325,7 @@ class Templates:
                         if (t2.text == 'of' or t2.text == '/') and t3.hasLabel('gs'):
                             # next number is group size, associate it with this outcome number
                             i = i + 2   # already processed the next two tokens
-                            gs = GroupSize(t3)
+                            gs = groupsizetemplate.GroupSize(t3)
                             #              self.lists['gs'].append(gs)
                             on.groupSize = gs
                             gs.outcomeNumber = on
@@ -338,6 +338,13 @@ class Templates:
     def getList(self, type):
         """ return list of templates of a given template type """
         return self.lists.get(type, [])
+
+    def setList(self, type, templateList):
+        """ set the template list for given type to the provided list
+        """
+        if type not in self.lists:
+            print 'templates.Templates.setList()) Warning: Type = %s is not in current template list.' % type
+        self.lists[type] = templateList
 
     def addOutcomeMeasurementList(self, omList):
         """ add list of outcome measurement templates """

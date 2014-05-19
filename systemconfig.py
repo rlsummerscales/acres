@@ -43,6 +43,7 @@ import summarylist
 
 import outcomemeasurementlinker
 import trueoutcomemeasurementlinker
+import costvaluelinker
 
 
 def deleteAllXMLFiles(path):
@@ -110,6 +111,7 @@ class RunConfiguration:
     missingOutcomeFinderTask = None
     everythingFinderTask = None
     outcomeMeasurementLinker = None
+    costValueLinker = None
 
     rerankLabelings = False
     postFilterResults = True
@@ -317,17 +319,20 @@ class RunConfiguration:
             on_er_associator = outcomemeasurementlinker.RuleBasedOutcomeMeasurementLinker()
             omAssoc = outcomemeasurementassociator.OutcomeMeasurementAssociator(modelPath=self.mPath,
                                                                                 considerPreviousSentences=False)
+            cvLinker = costvaluelinker.RuleBasedCostValueLinker()
             cvAssoc = costeffectivenessassociator.CostEffectivenessAssociator(modelPath=self.mPath, algorithm='hungarian')
             mqaFinders = [gsGroupAssoc, omAssoc, cvAssoc]
         elif mentionQuantityAssociator == 'annotated':
             on_er_associator = trueoutcomemeasurementlinker.TrueOutcomeMeasurementLinker()
             omAssoc = trueoutcomemeasurementassociator.TrueOutcomeMeasurementAssociator()
+            cvLinker = costvaluelinker.RuleBasedCostValueLinker()
             mqaFinders = [omAssoc]
         elif mentionQuantityAssociator == 'baseline':
             on_er_associator = None
             #      on_er_associator = RuleBasedOutcomeMeasurementLinker()
             gsGroupAssoc = baselinementionquantityassociator.BaselineMentionQuantityAssociator('group', 'gs')
             omAssoc = baselineoutcomemeasurementassociator.BaselineOutcomeMeasurementAssociator()
+            cvLinker = costvaluelinker.RuleBasedCostValueLinker()
             mqaFinders = [gsGroupAssoc, omAssoc]
         else:
             print 'Error: unknown mention quantity associator =', mentionQuantityAssociator
@@ -396,6 +401,7 @@ class RunConfiguration:
                                                           modelFilename='reranker.model', modelPath=self.mPath)
 
         self.outcomeMeasurementLinker = findertask.FinderTask(on_er_associator, modelPath=self.mPath)
+        self.costValueLinker = findertask.FinderTask(cvLinker, modelPath=self.mPath)
 
         for finder in mqaFinders:
             finderTask = findertask.FinderTask(finder, modelPath=self.mPath)
@@ -549,6 +555,7 @@ class RunConfiguration:
         self.conditionClusterTask.test(absList, statOut, fold=foldIndex)
 
         self.outcomeMeasurementLinker.test(absList, statOut, fold=foldIndex)
+        self.costValueLinker.test(absList, statOut, fold=foldIndex)
 
         for finderTask in self.mentionQuantityAssociatorTasks:
             finderTask.test(absList, statOut, fold=foldIndex)

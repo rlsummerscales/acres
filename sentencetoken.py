@@ -608,6 +608,14 @@ class Token:
         else:
             return False
 
+    def isLeftParenthesis(self):
+        """ return true if this token is a left parenthesis character """
+        return self.text == '-LRB-'
+
+    def isRightParenthesis(self):
+        """ return true if this token is a right parenthesis character """
+        return self.text == '-RRB-'
+
     def getUnits(self):
         """ if this token is a measurement, e.g. mass, volume, time, return its units,
             if we know what they are, otherwise, return None.
