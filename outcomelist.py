@@ -1,10 +1,14 @@
 #!/usr/bin/python
 # author: Rodney Summerscales
 
+"""
+ Create list of outcomes and their values for a summary
+"""
+
+
 import xmlutil
 from irstats import IRstats
 import templates
-import textevaluationform
 
 
 class OutcomeList:
@@ -201,6 +205,16 @@ class OutcomeList:
     def writeOutcomeHTML(self, oTemplate, out, showError):
         """ write a given outcome to HTML stream """
         out.write('<li>'+oTemplate.getCanonicalName()+'<ul>\n')
+        for cvTemplate in oTemplate.costValues:
+            out.write('<li>')
+            if cvTemplate.group.name is None:
+                groupName = 'unknown'
+            else:
+                groupName = cvTemplate.group.name
+            out.write(groupName + ': ')
+            out.write(cvTemplate.valueString())
+            out.write('</li>')
+
         for ssTemplate in oTemplate.summaryStats:
             if ssTemplate.correctlyMatched == True or showError == False:
                 color = 'black'

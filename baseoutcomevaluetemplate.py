@@ -1,7 +1,6 @@
 #!/usr/bin/env python 
 
 import sys
-import math
 
 from basequantitytemplate import BaseQuantityTemplate
 
@@ -109,7 +108,27 @@ class BaseOutcomeValueTemplate(BaseQuantityTemplate):
         return self.groupProb * self.outcomeProb
     #    return  self.outcomeProb
 
+    def addGroup(self, group):
+        """ Add an association to a group template
+        """
+        if group is None:
+            return
 
+        self.group = group
+        groupFV = self.getMatchFeatures(group)
+        if groupFV != None:
+            self.groupProb = groupFV.prob
+
+    def addOutcome(self, outcome):
+        """ Add an association to a outcome template
+        """
+        if outcome is None:
+            return
+
+        self.outcome = outcome
+        outcomeFV = self.getMatchFeatures(outcome)
+        if outcomeFV != None:
+            self.outcomeProb = outcomeFV.prob
 
     def toString(self):
         """ return a string containing all relevant info for this value """

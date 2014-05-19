@@ -231,6 +231,7 @@ class Templates:
         for type in self.quantityTypes:
             self.lists[type] = []
 
+        self.lists['cost_term'] = []
         self.summaryStats = []
         self.featureVectors = []
         self.sentence = None
@@ -259,6 +260,7 @@ class Templates:
             for type in self.mentionTypes:
                 mLists[type] = sentence.getAnnotatedMentions(type)
 
+
         useAnnotations = not useLabels
 
         for type in self.mentionTypes:
@@ -277,7 +279,14 @@ class Templates:
                     template = Group(mention, useAnnotations)
                 elif type == 'outcome':
                     template = Outcome(mention, useAnnotations)
+                    if template.isCostTerm():
+                        # if the mention is a cost term, it is both an outcome and cost term.
+                        # want to maintain a list of both, so we can get easy access to cost terms
+                        # when we need to associate them with values.
+                        self.lists['cost_term'].append(template)
+
                 self.lists[type].append(template)
+
 
         i = 0
         while i < len(sentence):

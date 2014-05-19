@@ -13,14 +13,14 @@ def AgeFilter(abstract):
             if len(ageTemplate.values) == 0:
                 # there are no valid age values in the age phrase, discard entire phrase
                 ageMention.tokens.removeLabel('age')
-    sentence.getDetectedMentions('age', recomputeMentions=True)
+        sentence.getDetectedMentions('age', recomputeMentions=True)
 
 def GroupFilter(abstract):
     """ apply simple rules to list of abstracts to recognize groups """
-    commonGroupWords = set(['intervention', 'control', 'controls', 'group', \
-                            'placebo'])
+    commonGroupWords = {'intervention', 'control', 'controls', 'group',
+                            'placebo'}
     label = 'group'
-    groupWords = set(['group', 'arm'])
+    groupWords = {'group', 'arm'}
     for sentence in abstract.sentences:
         for simpleTreeTokenNode in sentence.getSimpleTree().tokenNodes():
             if simpleTreeTokenNode.isNounPhraseNode() \
@@ -28,8 +28,8 @@ def GroupFilter(abstract):
                 nImportantWords = 0
                 phraseTokens = simpleTreeTokenNode.tokenList()
                 for token in phraseTokens:
-                    if token.isStopWord() == False and token.isSymbol() == False \
-                            and token.isNumber() == False and token.text != 'group':
+                    if token.isStopWord() is False and token.isSymbol() is False \
+                            and token.isNumber() is False and token.text != 'group':
                         nImportantWords += 1
                         break
                 if nImportantWords > 0:
@@ -49,7 +49,7 @@ def GroupFilter(abstract):
 
 
 
-    ignoreWords = set(['group', 'groups', 'arm'])
+    ignoreWords = {'group', 'groups', 'arm'}
     #  findAcronymExpansions(abstract, label)
     findRepeats(abstract, label)
     trimMention(abstract, label)
