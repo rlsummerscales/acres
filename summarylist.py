@@ -564,7 +564,11 @@ class SummaryList:
         """ write summaries to html file. """
 
         out = open(filename, mode='w')
-        out.write("<html><head><title>" + filename + "</title><body>\n<p>")
+        out.write("<html><head>\n")
+        out.write("<title>" + filename + "</title>\n")
+        out.write("<style>body{font-family:Helvetica,Arial,sans-serif;}</style>\n")
+
+        out.write("</head>\n")
         for summary in self.list:
             summary.writeHTML(out, showError=False)
         out.write('</body></html>\n')

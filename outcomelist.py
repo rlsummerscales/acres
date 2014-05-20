@@ -7,8 +7,9 @@
 
 
 import xmlutil
-from irstats import IRstats
+import irstats
 import templates
+import htmlutil
 
 
 class OutcomeList:
@@ -52,7 +53,7 @@ class OutcomeList:
         stats['outcome'] = templates.countMatches(aOutcomeTemplates, self.outcomeTemplates, errorOut)
 
         errorOut.write('primary outcome:\n')
-        primaryOutcomeStats = IRstats()
+        primaryOutcomeStats = irstats.IRstats()
         for oTemplate in self.outcomeTemplates:
             if oTemplate.isPrimary():
                 if oTemplate.matchedTemplate != None and oTemplate.matchedTemplate.isPrimary(useAnnotated=True):
@@ -211,7 +212,7 @@ class OutcomeList:
                 groupName = 'unknown'
             else:
                 groupName = cvTemplate.group.name
-            out.write(groupName + ': ')
+            htmlutil.HTMLWriteText(out, groupName+': ', 'blue', bold=True)
             out.write(cvTemplate.valueString())
             out.write('</li>')
 
