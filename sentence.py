@@ -5,12 +5,7 @@
  define classes for a sentence in an abstract
 """
 
-import sys
 import Queue
-import xml.dom
-from xml.dom import minidom
-from xml.dom.minidom import Document
-
 import xmlutil
 import simplifiedsentence
 import umlschunk
@@ -49,6 +44,7 @@ class Sentence:
         if tokenList == None:
             self.tokens = tokenlist.TokenList()
         else:
+            assert isinstance(tokenList, tokenlist.TokenList)
             self.createFromTokenList(tokenList)
         self.phrases = None
         self.__index = 0

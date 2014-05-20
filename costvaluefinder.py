@@ -27,6 +27,12 @@ class CostValueFinder(RuleBasedFinder):
         if token.isNumber() is False:
             return
 
-        if (token.nextToken() is not None and (token.nextToken().isCurrencyWord())
-                or (token.previousToken() is not None and (token.previousToken().isCurrencyWord()))):
+        if self.tokenIsCostValue(token):
             token.addLabel(self.label)
+
+    def tokenIsCostValue(self, token):
+        """
+         return True if a given token is a cost value
+        """
+        return (token.nextToken() is not None and (token.nextToken().isCurrencyWord())
+                or (token.previousToken() is not None and (token.previousToken().isCurrencyWord())))
