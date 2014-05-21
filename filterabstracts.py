@@ -7,10 +7,12 @@ import glob
 
 import xml.dom
 import nltk.tokenize.treebank
+import nltk.stem.wordnet
 import xmlutil
 import sentence
 import tokenlist
 import costvaluefinder
+import lemmatizeabstracts
 
 def keepForIschemiaCorpus(xmldoc):
     """ Return True if we should keep this abstract for the ischemia corpus
@@ -42,6 +44,7 @@ def keepForDiabetesCorpus(xmldoc):
             tokenList.convertStringList(tokenTextList)
             s = sentence.Sentence(tokenList)
             for token in s:
+                lemmatizeabstracts.lemmatizeToken(token)
                 if cvFinder.tokenIsCostValue(token):
                     nCostValues += 1
 
@@ -74,6 +77,8 @@ if outputPath[-1] != '/':
 # initialize sentence splitter and tokenizer
 sentenceSplitter = nltk.data.load('tokenizers/punkt/english.pickle')
 tokenizer = nltk.tokenize.treebank.TreebankWordTokenizer()
+lemmatizer = nltk.stem.wordnet.WordNetLemmatizer()
+
 cvFinder = costvaluefinder.CostValueFinder()
 
 fileList = glob.glob(inputPath+'*.xml')
@@ -87,4 +92,5 @@ for filename in fileList:
         #        if keepForIschemiaCorpus(xmldoc):
         if keepForDiabetesCorpus(xmldoc):
             # copy abstract
+            print 'Copying: ', filename
             shutil.copy(filename, outputPath)

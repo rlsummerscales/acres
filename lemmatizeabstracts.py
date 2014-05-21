@@ -3,31 +3,37 @@
 # add lemmas to each token
 
 import sys
+import nltk.stem.wordnet
+import abstractlist
 
-import nltk
-from nltk.stem.wordnet import WordNetLemmatizer
 
-from abstractlist import AbstractList
+lemmatizer = nltk.stem.wordnet.WordNetLemmatizer()
 
-if len(sys.argv) < 2:
-  print "Usage: lemmatizeabstracts.py <PATH>"
-  print "Lookup lemmas for each token in a directory of abstracts."
-  print "Modified files written to same directory"
-  sys.exit()
-  
-absPath = sys.argv[1]
-absList = AbstractList(absPath)
-
-lemmatizer = WordNetLemmatizer()
-
-for abs in absList:
-  for sentence in abs.sentences:
-    for token in sentence:
-      if token.pos[0] == 'N':
+def lemmatizeToken(token):
+    """
+     Add lemma to given token
+    """
+    if len(token.pos) > 0 and token.pos[0] == 'N':
         token.lemma = lemmatizer.lemmatize(token.text, 'n')
-      elif token.pos[0] == 'V':
+    elif len(token.pos) > 0 and token.pos[0] == 'V':
         token.lemma = lemmatizer.lemmatize(token.text, 'v')
-      else:
+    else:
         token.lemma = lemmatizer.lemmatize(token.text)
 
-absList.writeXML(absPath, 'raw')
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print "Usage: lemmatizeabstracts.py <PATH>"
+        print "Lookup lemmas for each token in a directory of abstracts."
+        print "Modified files written to same directory"
+        sys.exit()
+
+    absPath = sys.argv[1]
+    absList = abstractlist.AbstractList(absPath)
+
+    for abs in absList:
+        for sentence in abs.sentences:
+            for token in sentence:
+                lemmatizeToken(token)
+
+    absList.writeXML(absPath, 'raw')

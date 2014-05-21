@@ -45,6 +45,7 @@ path['bmj2'] = 'corpora/combined/bmj2'
 path['bmj3'] = 'corpora/combined/bmj3'
 path['bmj4'] = 'corpora/combined/bmj4'
 path['cost'] = 'corpora/bmj/costraw'
+path['diabetes'] = 'corpora/diabetes/raw'
 
 #path['ischemia-eval'] = 'corpora/ischemia/raw-eval-set1'
 path['ischemia'] = 'corpora/ischemia/raw'
