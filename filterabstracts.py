@@ -55,8 +55,10 @@ def keepForDiabetesCorpus(xmldoc):
         Include abstract in diabetes corpus if it contains at least 4 integers.
     """
     textNodeList = xmldoc.getElementsByTagName('AbstractText')
-    nNumbers = 0
+    nCostValues = 0
+    nCostTerms = 0
     tokenCount = 0
+    cueLemmaSet = {"cost", "QALY", "QALYs"}
 
     for textNode in textNodeList:
         text = xmlutil.getText(textNode)
@@ -68,10 +70,13 @@ def keepForDiabetesCorpus(xmldoc):
             s = sentence.Sentence(tokenList)
             for token in s:
                 tokenCount += 1
-                if token.isNumber():
-                    nNumbers += 1
+                lemmatizeabstracts.lemmatizeToken(token)
+                if token.lemma in cueLemmaSet or token.text.find('cost') >= 0:
+                    nCostTerms += 1
+                if cvFinder.tokenIsCostValue(token):
+                    nCostValues += 1
 
-    return nNumbers > 1 and tokenCount > 100
+    return (nCostValues > 0 or nCostTerms > 0) and tokenCount > 100
 
 
 if len(sys.argv) < 3:
