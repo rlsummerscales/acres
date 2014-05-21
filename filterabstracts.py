@@ -24,14 +24,14 @@ def keepForIschemiaCorpus(xmldoc):
         text = xmlutil.getText(textNode)
         tokens = tokenizer.tokenize(text)
         for token in tokens:
-            if token.isdigit():
+            if token.isInteger():
                 nIntegers += 1
 
     return nIntegers > 3
 
-def keepForDiabetesCorpus(xmldoc):
+def keepForDiabetesCorpusCostValue(xmldoc):
     """ Return True if we should keep this abstract for the diabetes corpus
-        Include abstract in diabetes corpus if it contains at least 4 integers.
+        Include abstract in diabetes corpus if it contains at least *one* currency value.
     """
     textNodeList = xmldoc.getElementsByTagName('AbstractText')
     nCostValues = 0
@@ -49,6 +49,30 @@ def keepForDiabetesCorpus(xmldoc):
                     nCostValues += 1
 
     return nCostValues > 0
+
+def keepForDiabetesCorpus(xmldoc):
+    """ Return True if we should keep this abstract for the diabetes corpus
+        Include abstract in diabetes corpus if it contains at least 4 integers.
+    """
+    textNodeList = xmldoc.getElementsByTagName('AbstractText')
+    nNumbers = 0
+    tokenCount = 0
+
+    for textNode in textNodeList:
+        text = xmlutil.getText(textNode)
+        sentenceList = sentenceSplitter.tokenize(text)
+        for sText in sentenceList:
+            tokenTextList = tokenizer.tokenize(sText)
+            tokenList = tokenlist.TokenList()
+            tokenList.convertStringList(tokenTextList)
+            s = sentence.Sentence(tokenList)
+            for token in s:
+                tokenCount += 1
+                if token.isNumber():
+                    nNumbers += 1
+
+    return nNumbers > 1 and tokenCount > 100
+
 
 if len(sys.argv) < 3:
     print "Usage: filterabstracts.py <INPUT_PATH> <OUTPUT_PATH> <IGNORE_FILE>"
