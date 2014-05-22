@@ -4,33 +4,33 @@
 
 import sys
 
-from abstractlist import AbstractList
-from dictionaryfinder import DictionaryFinder
+import abstractlist
+import dictionaryfinder
 
-class SemanticTagAnnotator(DictionaryFinder):
-  """ This finder labels tokens with a semantic tag defined by a file of terms."""
-  
-  def __init__(self, entityType, dictionaryFilename):
-    """ Create a finder that labels tokens with a given type if they appear
-      in a list of words.
-      entityType = the mention types to find (e.g. group, outcome)
-      dictionaryFilename = the path of the file containing the list of words
-    """
-    DictionaryFinder.__init__(self, entityType, dictionaryFilename)
+class SemanticTagAnnotator(dictionaryfinder.DictionaryFinder):
+    """ This finder labels tokens with a semantic tag defined by a file of terms."""
 
-  def applyRules(self, token):
-    """ Label given token if it appears in a list of words """
-    if token.text in self.wordSet or token.lemma in self.wordSet:
-      token.semanticTags.add(self.entityTypes[0])
+    def __init__(self, entityType, dictionaryFilename):
+        """ Create a finder that labels tokens with a given type if they appear
+          in a list of words.
+          entityType = the mention types to find (e.g. group, outcome)
+          dictionaryFilename = the path of the file containing the list of words
+        """
+        dictionaryfinder.DictionaryFinder.__init__(self, entityType, dictionaryFilename)
+
+    def applyRules(self, token):
+        """ Label given token if it appears in a list of words """
+        if token.text in self.wordSet or token.lemma in self.wordSet:
+            token.semanticTags.add(self.entityTypes[0])
 
 if len(sys.argv) < 2:
-  print "Usage: addsemantictags.py <PATH>"
-  print "Add semantic tags to each token in a directory of abstracts."
-  print "Modified files written to same directory"
-  sys.exit()
-  
+    print "Usage: addsemantictags.py <PATH>"
+    print "Add semantic tags to each token in a directory of abstracts."
+    print "Modified files written to same directory"
+    sys.exit()
+
 absPath = sys.argv[1]
-absList = AbstractList(absPath)
+absList = abstractlist.AbstractList(absPath)
 
 finders = []
 finders.append(SemanticTagAnnotator('people', 'models/semantic/people.txt'))
@@ -47,9 +47,9 @@ finders.append(SemanticTagAnnotator('symptom','models/semantic/symptom.txt'))
 finders.append(SemanticTagAnnotator('time','models/semantic/time.txt'))
 
 for abs in absList:
-  for sentence in abs.sentences:
-    for token in sentence:
-      for dFinder in finders:
-        dFinder.applyRules(token)
-        
+    for sentence in abs.sentences:
+        for token in sentence:
+            for dFinder in finders:
+                dFinder.applyRules(token)
+
 absList.writeXML(absPath, 'raw')
