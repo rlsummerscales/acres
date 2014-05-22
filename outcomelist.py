@@ -76,12 +76,20 @@ class OutcomeList:
 
         return stats
 
+    def createGroupNode(self, doc, groupTemplate, idPrefix):
+        """
+         Return XML node containing information for a Group element
+        """
+        groupNode = doc.createElement('Group')
+        groupNode.setAttribute('Id', idPrefix+groupTemplate.id)
+        return groupNode
+
     def getGroupXML(self, doc, omTemplate, idPrefix):
         """ return XML node containing outcome results for group.
             omTemplate = outcome measurement template containing outcome info for
             the group"""
-        groupNode = doc.createElement('Group')
-        groupNode.setAttribute('Id', idPrefix+omTemplate.getGroup().id)
+        groupNode = self.createGroupNode(doc, omTemplate.getGroup(), idPrefix)
+
         bad = omTemplate.getOutcomes()
         if bad >= 0:
             badNode = xmlutil.createNodeWithTextChild(doc, 'Bad', str(bad))
@@ -95,7 +103,7 @@ class OutcomeList:
             er = omTemplate.eventRateString()
             erNode = xmlutil.createNodeWithTextChild(doc, 'EventRate', er)
             groupNode.appendChild(erNode)
-        scoreNode = xmlutil.createNodeWithTextChild(doc, 'Score', \
+        scoreNode = xmlutil.createNodeWithTextChild(doc, 'Score',
                                                     str(omTemplate.getConfidence()))
         groupNode.appendChild(scoreNode)
         return groupNode
@@ -118,6 +126,24 @@ class OutcomeList:
         nameNode = xmlutil.createNodeWithTextChild(doc, 'Name', oTemplate.getCanonicalName())
         #      setUMLSAttribute(nameNode, oTemplate)
         outcomeNode.appendChild(nameNode)
+
+        # write Cost values
+        cvCount = 0
+        for cvTemplate in oTemplate.costValues:
+            cvNode = doc.createElement('CostValue')
+            outcomeNode.appendChild(cvNode)
+            id = idPrefix + oTemplate.id + 'cv' + str(cvCount)
+            cvNode.setAttribute('id', id)
+            cvCount += 1
+
+            if cvTemplate.group.name is not None:
+                cvNode.appendChild(self.createGroupNode(doc, cvTemplate.group, idPrefix))
+
+            valueNode = xmlutil.createNodeWithTextChild(doc, 'Value', cvTemplate.token.text)
+            valueNode.setAttribute('units', cvTemplate.token.getUnits())
+            cvNode.appendChild(valueNode)
+
+        # write ARR/NNT
         epCount = 0
         for ssTemplate in oTemplate.summaryStats:
             epNode = doc.createElement('Endpoint')

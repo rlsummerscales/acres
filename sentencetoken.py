@@ -8,10 +8,10 @@ import re
 import nltk.corpus
 
 import xmlutil
-from umlsconcept import UMLSConcept
-from parsetree import DependencyList
-from annotation import Annotation
-from annotation import AnnotationList
+import umlsconcept
+import parsetree
+from annotation import Annotation, AnnotationList
+
 
 __author__ = 'Rodney L. Summerscales'
 
@@ -135,10 +135,10 @@ class Token:
             self.pos = ''
 
         dNodes = tNode.getElementsByTagName('dep')
-        self.dependents = DependencyList(dNodes)
+        self.dependents = parsetree.DependencyList(dNodes)
 
         gNodes = tNode.getElementsByTagName('gov')
-        self.governors = DependencyList(gNodes)
+        self.governors = parsetree.DependencyList(gNodes)
         for gov in self.governors:
             if gov.index == self.index:
                 #         print 'Governor index matches dependent index'
@@ -160,7 +160,7 @@ class Token:
 
         uNodes = tNode.getElementsByTagName('umls')
         for node in uNodes:
-            self.umlsConcepts.append(UMLSConcept(node))
+            self.umlsConcepts.append(umlsconcept.UMLSConcept(node))
 
     def isRoot(self):
         """ return True if this token has a dependency from the root """
@@ -428,7 +428,7 @@ class Token:
                 return annotation
         return None
 
-    def getDisplayText(self):
+    def getDisplayText(self, capitalizeFirstLetter):
         """ Return the version of the token text meant for human reading. """
         if self.text == '-LRB-':
             return '('
@@ -443,6 +443,9 @@ class Token:
             return self.specialTokenAnnotations[annotation]
         if self.hasAnnotation('percentage'):
             return self.text + '%'
+        if capitalizeFirstLetter and len(self.text) > 0:
+            firstLetter = self.text[0].upper()
+            return firstLetter + self.text[1:]
         return self.text
 
     def getXML(self, doc):

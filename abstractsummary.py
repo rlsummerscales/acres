@@ -7,36 +7,35 @@
 
 import xmlutil
 import time
-import xml
-import codecs
-from xml.dom.minidom import Document
+import xml.dom.minidom
+import StringIO
 
 import demographicelements
-from subjectlist import SubjectList
-from outcomelist import OutcomeList
+import subjectlist
+import outcomelist
 
 
 class Summary:
     """ Summary for a given abstract. All mentions, quantities should be found
         and associated. """
 
-    abstract = None         # abstract for which this is a summary
-    subjectList = None      # list of groups w/descriptions
-    outcomeList = None      # list of outcomes measured in abstract
-    locationList = None     # list of locations where study is performed
-    summaryStatsList = None     # list of summary statistics in abstract
-    randomized = False      # is the abstract describing an RCT?
+    abstract = None  # abstract for which this is a summary
+    subjectList = None  # list of groups w/descriptions
+    outcomeList = None  # list of outcomes measured in abstract
+    locationList = None  # list of locations where study is performed
+    summaryStatsList = None  # list of summary statistics in abstract
+    randomized = False  # is the abstract describing an RCT?
     randomizedTerms = {'randomized', 'randomised', 'randomly', 'randomization',
                        'randomisation'}
-    useTrialReports = True
+    useTrialReports = False
 
-    def __init__(self, abstract, useAnnotated=False, useTrialReports=True):
+    def __init__(self, abstract, useAnnotated=False, useTrialReports=False):
         """ build EBM related summary for a given abstract object """
         self.abstract = abstract
 
         self.useTrialReports = useTrialReports
-        self.subjectList = SubjectList(abstract, useAnnotated, self.useTrialReports)
-        self.outcomeList = OutcomeList(abstract, useAnnotated, self.useTrialReports)
+        self.subjectList = subjectlist.SubjectList(abstract, useAnnotated, self.useTrialReports)
+        self.outcomeList = outcomelist.OutcomeList(abstract, useAnnotated, self.useTrialReports)
         self.locationList = demographicelements.LocationList(abstract, self.useTrialReports)
         self.summaryStatList = None
         self.randomized = False
@@ -44,7 +43,7 @@ class Summary:
             if self.containsRandomized(s):
                 self.randomized = True
                 break
-        if self.randomized == False:
+        if self.randomized is False:
             for s in abstract.allSentences():
                 if self.containsRandomized(s):
                     self.randomized = True
@@ -57,41 +56,40 @@ class Summary:
         eStrings = []
         tString = time.strftime("%a, %d %b %Y %H:%M:%S")
         for av in self.subjectList.ageInfo.ageValues.values():
-            eStrings.append(self.sqlEvaluationString('Age', av.evaluation.id, av.evaluation.rating, \
+            eStrings.append(self.sqlEvaluationString('Age', av.evaluation.id, av.evaluation.rating,
                                                      version, tString))
 
         for cTemplate in self.subjectList.conditionTemplates:
-            eStrings.append(self.sqlEvaluationString('Condition', cTemplate.evaluation.id, \
+            eStrings.append(self.sqlEvaluationString('Condition', cTemplate.evaluation.id,
                                                      cTemplate.evaluation.rating, version, tString))
 
         for gTemplate in self.subjectList.groupTemplates:
-            eStrings.append(self.sqlEvaluationString('Group', gTemplate.evaluation.id, \
+            eStrings.append(self.sqlEvaluationString('Group', gTemplate.evaluation.id,
                                                      gTemplate.evaluation.rating, version, tString))
             if gTemplate.groupSizeEvaluation.isComplete():
-                eStrings.append(self.sqlEvaluationString('Group_Size', gTemplate.groupSizeEvaluation.id, \
+                eStrings.append(self.sqlEvaluationString('Group_Size', gTemplate.groupSizeEvaluation.id,
                                                          gTemplate.groupSizeEvaluation.rating, version, tString))
 
-
         for oTemplate in self.outcomeList.outcomeTemplates:
-            eStrings.append(self.sqlEvaluationString('Outcome', oTemplate.evaluation.id, \
+            eStrings.append(self.sqlEvaluationString('Outcome', oTemplate.evaluation.id,
                                                      oTemplate.evaluation.rating, version, tString))
             if oTemplate.primaryOutcomeEvaluation.isComplete():
-                eStrings.append(self.sqlEvaluationString('Primary_Outcome', \
-                                                         oTemplate.primaryOutcomeEvaluation.id, \
+                eStrings.append(self.sqlEvaluationString('Primary_Outcome',
+                                                         oTemplate.primaryOutcomeEvaluation.id,
                                                          oTemplate.primaryOutcomeEvaluation.rating, version, tString))
             for ssTemplate in oTemplate.summaryStats:
-                eStrings.append(self.sqlEvaluationString('Endpoint', ssTemplate.evaluation.id, \
+                eStrings.append(self.sqlEvaluationString('Endpoint', ssTemplate.evaluation.id,
                                                          ssTemplate.evaluation.rating, version, tString))
 
-        eStrings.append(self.sqlEvaluationString('actual_Age', 'Actual_Ages_no.s', \
+        eStrings.append(self.sqlEvaluationString('actual_Age', 'Actual_Ages_no.s',
                                                  self.subjectList.ageInfo.nTrueAgeValues, version, tString))
-        eStrings.append(self.sqlEvaluationString('actual_Condition', 'Actual_Condition_no.s', \
+        eStrings.append(self.sqlEvaluationString('actual_Condition', 'Actual_Condition_no.s',
                                                  self.subjectList.nTrueConditions, version, tString))
-        eStrings.append(self.sqlEvaluationString('actual_Group', 'Actual_Group_no.s', \
+        eStrings.append(self.sqlEvaluationString('actual_Group', 'Actual_Group_no.s',
                                                  self.subjectList.nTrueGroups, version, tString))
-        eStrings.append(self.sqlEvaluationString('actual_Outcome', 'Actual_Outcomes_no.s', \
+        eStrings.append(self.sqlEvaluationString('actual_Outcome', 'Actual_Outcomes_no.s',
                                                  self.outcomeList.nTrueOutcomes, version, tString))
-        eStrings.append(self.sqlEvaluationString('actual_Endpoint', 'Actual_ARR_no.s', \
+        eStrings.append(self.sqlEvaluationString('actual_Endpoint', 'Actual_ARR_no.s',
                                                  len(self.abstract.trueSummaryStats.stats), version, tString))
 
         return eStrings
@@ -100,7 +98,7 @@ class Summary:
         """ return SQL element evaluation string """
 
         eString = '(%s, \'%s\', \'%s\', \'%s\', \'%s\',\'%s\', \'%s\')' \
-                  % (self.abstract.id, version, elementType, elementId, answerDesc, 'auto',timeString)
+                  % (self.abstract.id, version, elementType, elementId, answerDesc, 'auto', timeString)
         return eString
 
     def getElementStrings(self):
@@ -112,33 +110,36 @@ class Summary:
             eStrings.append(self.sqlElementString(av.evaluation.id, av.toString(), None, False))
 
         for cTemplate in self.subjectList.conditionTemplates:
-            eStrings.append(self.sqlElementString(cTemplate.evaluation.id, \
-                                                  cTemplate.toString(), cTemplate.matchedTemplate, cTemplate.exactMatch))
+            eStrings.append(self.sqlElementString(cTemplate.evaluation.id,
+                                                  cTemplate.toString(), cTemplate.matchedTemplate,
+                                                  cTemplate.exactMatch))
 
         for gTemplate in self.subjectList.groupTemplates:
-            eStrings.append(self.sqlElementString(gTemplate.evaluation.id, \
-                                                  gTemplate.toString(), gTemplate.matchedTemplate, gTemplate.exactMatch))
+            eStrings.append(self.sqlElementString(gTemplate.evaluation.id,
+                                                  gTemplate.toString(), gTemplate.matchedTemplate,
+                                                  gTemplate.exactMatch))
             if gTemplate.groupSizeEvaluation.isComplete():
-                eStrings.append(self.sqlElementString(gTemplate.groupSizeEvaluation.id, \
+                eStrings.append(self.sqlElementString(gTemplate.groupSizeEvaluation.id,
                                                       gTemplate.getSize(maxSize=True), None, False))
 
-
         for oTemplate in self.outcomeList.outcomeTemplates:
-            eStrings.append(self.sqlElementString(oTemplate.evaluation.id, \
-                                                  oTemplate.toString(), oTemplate.matchedTemplate, oTemplate.exactMatch))
+            eStrings.append(self.sqlElementString(oTemplate.evaluation.id,
+                                                  oTemplate.toString(), oTemplate.matchedTemplate,
+                                                  oTemplate.exactMatch))
             if oTemplate.primaryOutcomeEvaluation.isComplete():
-                eStrings.append(self.sqlElementString(oTemplate.primaryOutcomeEvaluation.id, \
+                eStrings.append(self.sqlElementString(oTemplate.primaryOutcomeEvaluation.id,
                                                       oTemplate.toString(), None, False))
             for ssTemplate in oTemplate.summaryStats:
-                eStrings.append(self.sqlElementString(ssTemplate.evaluation.id, \
-                                                      ssTemplate.toString(), ssTemplate.matchingStat, \
+                eStrings.append(self.sqlElementString(ssTemplate.evaluation.id,
+                                                      ssTemplate.toString(), ssTemplate.matchingStat,
                                                       ssTemplate.correctlyMatched))
 
         return eStrings
 
-    def sqlElementString(self, elementId, elementDescription, matchingElement, exactMatch):
+    @staticmethod
+    def sqlElementString(elementId, elementDescription, matchingElement, exactMatch):
         """ return SQL element description string """
-        if matchingElement == None:
+        if matchingElement is None:
             eString = '(\'%s\', \'%s\', NULL, %s)' % (elementId, elementDescription, exactMatch)
         else:
             eString = '(\'%s\', \'%s\', \'%s\', %s)' \
@@ -156,9 +157,9 @@ class Summary:
     def writeXML(self, path, version):
         """ Write summary to XML file in the destination directory specified
             by path. """
-        idPrefix = self.abstract.id + 'v'+version
+        idPrefix = self.abstract.id + 'v' + version
         # build XML summary
-        doc = Document()
+        doc = xml.dom.minidom.Document()
         articleNode = doc.createElement('Study')
         if self.randomized:
             articleNode.setAttribute('RandomizationPresent', 'true')
@@ -184,38 +185,42 @@ class Summary:
         linkNode = xmlutil.createNodeWithTextChild(doc, 'AbstractLink', link)
         articleNode.appendChild(linkNode)
 
-        if self.abstract.report != None and self.abstract.report.id[0:3] == 'NCT':
+        if self.abstract.report is not None and self.abstract.report.id[0:3] == 'NCT':
             link = 'http://clinicaltrials.gov/ct2/show/study/' + self.abstract.report.id
             linkNode = xmlutil.createNodeWithTextChild(doc, 'TrialRegistryLink', link)
             articleNode.appendChild(linkNode)
 
-
         node = self.locationList.getXML(doc, idPrefix)
-        if node != None:
+        if node is not None:
             articleNode.appendChild(node)
 
-        if self.useTrialReports and self.abstract.report != None \
+        if self.useTrialReports and self.abstract.report is not None \
                 and len(self.abstract.report.conditions) > 0:
             cListNode = doc.createElement('ConditionsOfInterest')
             articleNode.appendChild(cListNode)
             for condition in self.abstract.report.conditions:
                 cNode = doc.createElement('Condition')
-                cNode.appendChild(xmlutil.createNodeWithTextChild(doc, 'Name', \
+                cNode.appendChild(xmlutil.createNodeWithTextChild(doc, 'Name',
                                                                   condition.sentences[0].toString()))
                 cNode.setAttribute('source', 'trial_registry')
                 cListNode.appendChild(cNode)
 
-
         node = self.subjectList.getXML(doc, idPrefix)
-        if node != None:
+        if node is not None:
             articleNode.appendChild(node)
 
         node = self.outcomeList.getXML(doc, idPrefix)
-        if node != None:
+        if node is not None:
             articleNode.appendChild(node)
 
-        if self.abstract.meshHeadingList != None:
+        if self.abstract.meshHeadingList is not None:
             articleNode.appendChild(self.abstract.meshHeadingList.getXML(doc))
+
+        htmlString = StringIO.StringIO()
+        self.writeHTML(htmlString, showError=False)
+        htmlNode = xmlutil.createNodeWithTextChild(doc, 'HTMLData', htmlString.getvalue())
+        articleNode.appendChild(htmlNode)
+        htmlString.close()
 
         # write summary to XML file
         filename = path + self.abstract.id + '.summary.xml'
@@ -231,17 +236,17 @@ class Summary:
         out.write('<p><b><a href="' + link + '">' + self.abstract.id + ':</a></b></p>\n')
         titleString = ''
         for s in self.abstract.titleSentences:
-            titleString += s.toString()
-        out.write('<h3>'+titleString+'</h3>')
+            titleString += s.toPrettyString()
+        out.write('<h2>' + titleString + '</h2>')
         #    if self.randomized:
         #      out.write('<p><i>--RandomizationPresent--</i></p>')
 
         out.write('<p>')
-        self.abstract.writeHTML(out, ['group', 'outcome', 'condition', \
+        self.abstract.writeHTML(out, ['group', 'outcome', 'condition',
                                       'eventrate', 'on', 'gs', 'cost_value'], showError)
         #    self.abstract.writeHTML(out)
-        if self.useTrialReports and includeReport and self.abstract.report != None:
-            out.write('<h3>Report</h3><ul>\n')
+        if self.useTrialReports and includeReport and self.abstract.report is not None:
+            out.write('<h2>Report</h2><ul>\n')
             report = self.abstract.report
             out.write('<li>ID: ' + report.id + '</li>\n')
             if len(report.gender) > 0:

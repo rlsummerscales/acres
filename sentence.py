@@ -12,10 +12,8 @@ import umlschunk
 import sentencetoken
 import tokenlist
 
-from mention import Mention
-from parsetree import ParseTreeNode
-from parsetree import SimplifiedTreeNode
-
+import mention
+import parsetree
 
 
 class Sentence:
@@ -97,7 +95,7 @@ class Sentence:
             self.parseString = xmlutil.getText(pNodes[0])
             # build parse trees
             if len(self.parseString) > 0:
-                self.parseTree = ParseTreeNode()
+                self.parseTree = parsetree.ParseTreeNode()
                 self.parseTree.buildParseTree(self.parseString, self.tokens)
                 #         self.simpleTree = SimplifiedTreeNode()
                 #         self.simpleTree.buildSimplifiedTree(self.parseTree)
@@ -239,7 +237,7 @@ class Sentence:
 
     def getSimpleTree(self):
         """ build and return the simplified parse tree for this sentence """
-        simpleTree = SimplifiedTreeNode()
+        simpleTree = parsetree.SimplifiedTreeNode()
         simpleTree.buildSimplifiedTree(self.parseTree)
         return simpleTree
 
@@ -264,12 +262,12 @@ class Sentence:
                     tList.append(token)
                 elif len(tList) > 0:
                     # no longer in a mention, but previous token was
-                    mentionList.append(Mention(tList, annotated=True))
+                    mentionList.append(mention.Mention(tList, annotated=True))
                     tList = tokenlist.TokenList()
 
             if len(tList) > 0:
                 # add mention that includes last token in sentence
-                mentionList.append(Mention(tList, annotated=True))
+                mentionList.append(mention.Mention(tList, annotated=True))
             self.annotatedMentions[mType] = mentionList
 
             return self.annotatedMentions[mType]
@@ -288,12 +286,12 @@ class Sentence:
                     tList.append(token)
                 elif len(tList) > 0:
                     # no longer in a mention, but previous token was
-                    mentionList.append(Mention(tList, annotated=False))
+                    mentionList.append(mention.Mention(tList, annotated=False))
                     tList = tokenlist.TokenList()
 
             if len(tList) > 0:
                 # add mention that includes last token in sentence
-                mentionList.append(Mention(tList, annotated=False))
+                mentionList.append(mention.Mention(tList, annotated=False))
             self.detectedMentions[mType] = mentionList
             return self.detectedMentions[mType]
 
@@ -361,6 +359,12 @@ class Sentence:
     def toString(self):
         """ return the sentence as a string """
         return self.tokens.toString()
+
+    def toPrettyString(self):
+        """
+         Return a sentence as a string. Capitalize the first word.
+        """
+        return self.tokens.toString(capitalizeFirstWord=True)
 
     def getXML(self, doc):
         """ return an xml element containing sentence information """

@@ -268,12 +268,23 @@ class Abstract:
                 for label in labelList:
                     correctColor[label] = 'blue'
 
+        currentSectionLabel = None
+        out.write('<p>')
         for sentence in self.sentences:
-            out.write('<br> ')
+            if currentSectionLabel != sentence.section:
+                currentSectionLabel = sentence.section
+                out.write('</p>\n<p><strong>%s: </strong>\n' % sentence.section)
+            #out.write('<br> ')
+            out.write(' ')
             for token in sentence:
                 tokenColor = 'black'
                 comment = ''
-                text = token.getDisplayText()
+                # capitalize first letter in sentence
+                if token.index == 0:
+                    capitalize = True
+                else:
+                    capitalize = False
+                text = token.getDisplayText(capitalizeFirstLetter=capitalize)
                 if useColors:
                     for label in labelList:
                         if (showError == False and token.hasLabel(label) == True) \
@@ -302,6 +313,8 @@ class Abstract:
                     out.write(text)
                 out.write(' ')
             out.write('\n')
+
+        out.write('</p>')
         #      out.write('<br>'+sentence.parseString+'\n')
 
     def isKeyTerm(self, token):

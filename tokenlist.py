@@ -49,7 +49,7 @@ class TokenList(list):
             list.append(token.lemma)
         return list
 
-    def toString(self):
+    def toString(self, capitalizeFirstWord=False):
         """ convert list of token objects to a string """
         #    return ' '.join(self.toStringList())
         s = ''
@@ -70,12 +70,13 @@ class TokenList(list):
                     s.append('<')
                 i += 1
             else:
-                s.append(token.getDisplayText())
+                s.append(token.getDisplayText(capitalizeFirstLetter=capitalizeFirstWord))
                 # separate tokens with a space
             #       if i < len(self):
             #         s += ' '
             # move to next token in sentence
             i += 1
+
         return ' '.join(s)
 
     def toStringSet(self):
