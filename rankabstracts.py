@@ -119,15 +119,18 @@ if __name__ == '__main__':
 
     lowQuality = []
     mediumQuality = []
-    highQuality = []
+    highQuality1 = []
+    highQuality2 = []
     for xmlSummary in summaryList:
         nARR = xmlSummary.countARR()
         nCostValues = xmlSummary.countCostValues()
         nGroups = xmlSummary.countGroups()
         nOutcomes = xmlSummary.countOutcomes()
 
+        if nARR > 0 and nCostValues > 0:
+            highQuality1.append((xmlSummary.id, xmlSummary))
         if nARR > 0 or nCostValues > 0:
-            highQuality.append((xmlSummary.id, xmlSummary))
+            highQuality2.append((xmlSummary.id, xmlSummary))
         elif nGroups > 0 or nOutcomes > 0:
             mediumQuality.append((xmlSummary.id, xmlSummary))
         else:
@@ -135,7 +138,10 @@ if __name__ == '__main__':
 
     lowQuality.sort(reverse=True)
     mediumQuality.sort(reverse=True)
-    highQuality.sort(reverse=True)
+    highQuality1.sort(reverse=True)
+    highQuality2.sort(reverse=True)
+    highQuality = highQuality1 + highQuality2
+
 
 
     # write summaries to html file
