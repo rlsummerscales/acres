@@ -13,6 +13,7 @@ import StringIO
 import demographicelements
 import subjectlist
 import outcomelist
+import htmlutil
 
 
 class Summary:
@@ -232,14 +233,57 @@ class Summary:
 
     def writeHTML(self, out, includeReport=False, showError=True):
         """ write summary in html format to given output stream. """
+        htmlutil.HTMLBeginTable(out)
+
+        htmlutil.HTMLBeginRow(out)
+
         link = 'http://www.ncbi.nlm.nih.gov/pubmed/' + self.abstract.id
-        out.write('<p><b><a href="' + link + '">' + self.abstract.id + ':</a></b></p>\n')
+        out.write('<h2><a href="%s">%s:</a></h2>\n' % (link, self.abstract.id))
+
+        htmlutil.HTMLColumnBreak(out)
+
         titleString = ''
         for s in self.abstract.titleSentences:
             titleString += s.toPrettyString()
         out.write('<h2>' + titleString + '</h2>')
-        #    if self.randomized:
-        #      out.write('<p><i>--RandomizationPresent--</i></p>')
+
+        htmlutil.HTMLEndRow(out)
+        htmlutil.HTMLBeginRow(out)
+
+        htmlutil.HTMLBeginRow(out)
+        htmlutil.HTMLWriteText(out,'Authors:', bold=True)
+        htmlutil.HTMLColumnBreak(out)
+        htmlutil.HTMLEndRow(out)
+
+        htmlutil.HTMLBeginRow(out)
+        htmlutil.HTMLWriteText(out,'Journal:', bold=True)
+        htmlutil.HTMLColumnBreak(out)
+        out.write(self.abstract.publicationInformation.getJournal())
+        htmlutil.HTMLEndRow(out)
+
+        htmlutil.HTMLBeginRow(out)
+        htmlutil.HTMLWriteText(out,'Country:', bold=True)
+        htmlutil.HTMLColumnBreak(out)
+        country = self.abstract.publicationInformation.getCountry()
+        out.write(country)
+        htmlutil.HTMLEndRow(out)
+
+        htmlutil.HTMLBeginRow(out)
+        htmlutil.HTMLWriteText(out,'Date:', bold=True)
+        htmlutil.HTMLColumnBreak(out)
+        out.write(self.abstract.publicationInformation.getPublicationDate())
+        htmlutil.HTMLEndRow(out)
+
+        htmlutil.HTMLBeginRow(out)
+        htmlutil.HTMLWriteText(out,'Publication types:', bold=True)
+        htmlutil.HTMLColumnBreak(out)
+        pTypeList = self.abstract.publicationInformation.getPublicationTypes()
+        for pType in pTypeList:
+            htmlutil.HTMLWriteText(out, pType+'<br>')
+        htmlutil.HTMLEndRow(out)
+
+
+        htmlutil.HTMLEndTable(out)
 
         out.write('<p>')
         self.abstract.writeHTML(out, ['group', 'outcome', 'condition',

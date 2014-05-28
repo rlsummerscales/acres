@@ -10,6 +10,7 @@ import xml.dom
 import xmlutil
 import nctreport
 import htmlutil
+import publicationinfo
 
 
 
@@ -35,6 +36,7 @@ class Abstract:
     affiliationSentences = None
     report = None
     acronyms = None
+    publicationInformation = None
 
     def __init__(self, filename=None, sentenceFilter=None, loadRegistries=True):
         """ create a new abstract object
@@ -57,6 +59,7 @@ class Abstract:
         self.summaryStats = None
         self.trueSummaryStats = None
         self.meshHeadingList = None
+        self.publicationInformation = None
         self.acronyms = {}
         if sentenceFilter == None:
             sentenceFilter = lambda sentence: True
@@ -72,6 +75,11 @@ class Abstract:
         xmlutil.normalizeXMLTree(absNodes[0])
 
         self.id = absNodes[0].getAttribute('id')
+
+        # read journal, author, publication info
+        nodes = absNodes[0].getElementsByTagName('PublicationInformation')
+        if len(nodes) > 0:
+            self.publicationInformation = publicationinfo.PublicationInfo(nodes[0])
 
         # read title
         nodes = absNodes[0].getElementsByTagName('title')
@@ -206,6 +214,9 @@ class Abstract:
         """ return xml element containing the abstract """
         node = doc.createElement('abstract')
         node.setAttribute('id', self.id)
+
+        if self.publicationInformation is not None:
+            node.appendChild(self.publicationInformation.getXML(doc))
 
         if len(self.titleSentences) > 0:
             tNode = xmlutil.createSentenceListNode('title', self.titleSentences, doc)

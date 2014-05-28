@@ -19,7 +19,10 @@ def HTMLWriteText(out, text, color='black', bold=False):
         return
 
     if color == 'black':
-        out.write(text)
+        if bold is False:
+            out.write(text)
+        else:
+            out.write('<strong>%s</strong>' % text)
     else:
         out.write(' <span style=\"color:' + color + '\">')
 
@@ -32,6 +35,36 @@ def HTMLWriteText(out, text, color='black', bold=False):
             out.write('</strong>')
 
         out.write('</span> ')
+
+def HTMLBeginTable(out, lineWidth=0):
+    """
+     Begin a html table
+    """
+    out.write('<table>')
+
+def HTMLEndTable(out):
+    """
+     Finish writing to table
+    """
+    out.write('</table>')
+
+def HTMLBeginRow(out):
+    """
+    start a new row in the table (and begin a new column)
+    """
+    out.write('<tr style="vertical-align:top"><td>')
+
+def HTMLColumnBreak(out):
+    """
+     End current column and begin a new one
+    """
+    out.write('</td><td>')
+
+def HTMLEndRow(out):
+    """
+    Finish current row in table (and column)
+    """
+    out.write('</td></tr>')
 
 
 class HTMLFile:

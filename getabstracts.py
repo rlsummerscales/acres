@@ -40,24 +40,24 @@ searchArgs = '&term=(("diabetes")' \
              + '("1991/01/01"[PDat]:"2006/12/31"[PDat])' \
              + '&cmd=DetailsSearch&retmax=5000'
 
-# diabetes cost education
-searchArgs = '&term=(("diabetes")' \
-             + '%20AND%20(cost)' \
-             + '%20AND%20(education)' \
-             + '%20AND%20(hasabstract[text])' \
-             + '%20AND%20(english[Language])' \
-             + '%20AND%20("humans"[MeSH%20Terms]' \
-             + '("1991/01/01"[PDat]:"2006/12/31"[PDat])' \
-             + '&cmd=DetailsSearch&retmax=5000'
-
-# # diabetes education
+# # diabetes cost education
 # searchArgs = '&term=(("diabetes")' \
+#              + '%20AND%20(cost)' \
 #              + '%20AND%20(education)' \
 #              + '%20AND%20(hasabstract[text])' \
 #              + '%20AND%20(english[Language])' \
 #              + '%20AND%20("humans"[MeSH%20Terms]' \
 #              + '("1991/01/01"[PDat]:"2006/12/31"[PDat])' \
-#              + '&cmd=DetailsSearch&retmax=10000'
+#              + '&cmd=DetailsSearch&retmax=5000'
+
+# diabetes education
+searchArgs = '&term=(("diabetes")' \
+             + '%20AND%20(education)' \
+             + '%20AND%20(hasabstract[text])' \
+             + '%20AND%20(english[Language])' \
+             + '%20AND%20("humans"[MeSH%20Terms]' \
+             + '("1991/01/01"[PDat]:"2006/12/31"[PDat])' \
+             + '&cmd=DetailsSearch&retmax=10000'
 
 if len(sys.argv) > 1:
     targetIdSet = checkforabstracts.readListOfAbstractIds(sys.argv[1])

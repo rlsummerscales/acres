@@ -54,7 +54,11 @@ def keepForDiabetesCorpus(xmldoc):
     """ Return True if we should keep this abstract for the diabetes corpus
         Include abstract in diabetes corpus if it contains at least one cost value or term.
     """
-    textNodeList = xmldoc.getElementsByTagName('AbstractText')
+    abstractNodes = xmldoc.getElementsByTagName('Abstract')
+    if abstractNodes is None or len(abstractNodes) == 0:
+        return False
+
+    textNodeList = abstractNodes[0].getElementsByTagName('AbstractText')
     if textNodeList is None or len(textNodeList) == 0:
         return False
 
@@ -63,20 +67,21 @@ def keepForDiabetesCorpus(xmldoc):
     tokenCount = 0
     cueLemmaSet = {"cost", "QALY", "QALYs"}
 
-    text = xmlutil.getText(textNodeList[0])
-    sentenceList = sentenceSplitter.tokenize(text)
-    for sText in sentenceList:
-        tokenTextList = tokenizer.tokenize(sText)
-        tokenList = tokenlist.TokenList()
-        tokenList.convertStringList(tokenTextList)
-        s = sentence.Sentence(tokenList)
-        for token in s:
-            tokenCount += 1
-            lemmatizeabstracts.lemmatizeToken(token)
-            if token.lemma in cueLemmaSet or token.text.find('cost') >= 0:
-                nCostTerms += 1
-            if cvFinder.tokenIsCostValue(token):
-                nCostValues += 1
+    for textNode in textNodeList:
+        text = xmlutil.getText(textNode)
+        sentenceList = sentenceSplitter.tokenize(text)
+        for sText in sentenceList:
+            tokenTextList = tokenizer.tokenize(sText)
+            tokenList = tokenlist.TokenList()
+            tokenList.convertStringList(tokenTextList)
+            s = sentence.Sentence(tokenList)
+            for token in s:
+                tokenCount += 1
+                lemmatizeabstracts.lemmatizeToken(token)
+                if token.lemma in cueLemmaSet or token.text.find('cost') >= 0:
+                    nCostTerms += 1
+                if cvFinder.tokenIsCostValue(token):
+                    nCostValues += 1
 
     return (nCostValues > 0 or nCostTerms > 0) and tokenCount > 100
 
@@ -116,12 +121,13 @@ fileList = glob.glob(inputPath+'*.xml')
 for filename in fileList:
     xmldoc = xml.dom.minidom.parse(filename)
     pmidNodes = xmldoc.getElementsByTagName('PMID')
-    pmid = xmlutil.getText(pmidNodes[0])
-    if pmid in ignoreSet:
-        print pmid, 'already annotated'
-    else:
-        #        if keepForIschemiaCorpus(xmldoc):
-        if keepForDiabetesCorpus(xmldoc):
-            # copy abstract
-            print 'Copying: ', filename
-            shutil.copy(filename, outputPath)
+    if len(pmidNodes) > 0:
+        pmid = xmlutil.getText(pmidNodes[0])
+        if pmid in ignoreSet:
+            print pmid, 'already annotated'
+        else:
+            #        if keepForIschemiaCorpus(xmldoc):
+            if keepForDiabetesCorpus(xmldoc):
+                # copy abstract
+                print 'Copying: ', filename
+                shutil.copy(filename, outputPath)
