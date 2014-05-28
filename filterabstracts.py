@@ -52,29 +52,31 @@ def keepForDiabetesCorpusCostValue(xmldoc):
 
 def keepForDiabetesCorpus(xmldoc):
     """ Return True if we should keep this abstract for the diabetes corpus
-        Include abstract in diabetes corpus if it contains at least 4 integers.
+        Include abstract in diabetes corpus if it contains at least one cost value or term.
     """
     textNodeList = xmldoc.getElementsByTagName('AbstractText')
+    if textNodeList is None or len(textNodeList) == 0:
+        return False
+
     nCostValues = 0
     nCostTerms = 0
     tokenCount = 0
     cueLemmaSet = {"cost", "QALY", "QALYs"}
 
-    for textNode in textNodeList:
-        text = xmlutil.getText(textNode)
-        sentenceList = sentenceSplitter.tokenize(text)
-        for sText in sentenceList:
-            tokenTextList = tokenizer.tokenize(sText)
-            tokenList = tokenlist.TokenList()
-            tokenList.convertStringList(tokenTextList)
-            s = sentence.Sentence(tokenList)
-            for token in s:
-                tokenCount += 1
-                lemmatizeabstracts.lemmatizeToken(token)
-                if token.lemma in cueLemmaSet or token.text.find('cost') >= 0:
-                    nCostTerms += 1
-                if cvFinder.tokenIsCostValue(token):
-                    nCostValues += 1
+    text = xmlutil.getText(textNodeList[0])
+    sentenceList = sentenceSplitter.tokenize(text)
+    for sText in sentenceList:
+        tokenTextList = tokenizer.tokenize(sText)
+        tokenList = tokenlist.TokenList()
+        tokenList.convertStringList(tokenTextList)
+        s = sentence.Sentence(tokenList)
+        for token in s:
+            tokenCount += 1
+            lemmatizeabstracts.lemmatizeToken(token)
+            if token.lemma in cueLemmaSet or token.text.find('cost') >= 0:
+                nCostTerms += 1
+            if cvFinder.tokenIsCostValue(token):
+                nCostValues += 1
 
     return (nCostValues > 0 or nCostTerms > 0) and tokenCount > 100
 

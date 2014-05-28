@@ -32,7 +32,7 @@ eutils = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
 #              + '%20AND%20jsubsetaim[text])' \
 #              + '&cmd=DetailsSearch&retmax=500'
 
-
+# search used for diabetes corpus
 searchArgs = '&term=(("diabetes")' \
              + '%20AND%20(cost)' \
              + '%20AND%20(english[Language])' \
@@ -40,14 +40,24 @@ searchArgs = '&term=(("diabetes")' \
              + '("1991/01/01"[PDat]:"2006/12/31"[PDat])' \
              + '&cmd=DetailsSearch&retmax=5000'
 
-# searchArgs = '&term=((diabetes)' \
-#              + '%20AND%20(cost)' \
+# diabetes cost education
+searchArgs = '&term=(("diabetes")' \
+             + '%20AND%20(cost)' \
+             + '%20AND%20(education)' \
+             + '%20AND%20(hasabstract[text])' \
+             + '%20AND%20(english[Language])' \
+             + '%20AND%20("humans"[MeSH%20Terms]' \
+             + '("1991/01/01"[PDat]:"2006/12/31"[PDat])' \
+             + '&cmd=DetailsSearch&retmax=5000'
+
+# # diabetes education
+# searchArgs = '&term=(("diabetes")' \
+#              + '%20AND%20(education)' \
+#              + '%20AND%20(hasabstract[text])' \
 #              + '%20AND%20(english[Language])' \
-#              + '%20AND%20(humans[MeSH%20Terms]' \
-#              + '%20AND%20((clinical+trial[Publication+Type])+OR+(comparative+study[Publication+Type])' \
-#              + '+OR+("Review"[pt])+OR+("Research+Support,+Non-U.S.+Gov%27t"[pt]))' \
+#              + '%20AND%20("humans"[MeSH%20Terms]' \
 #              + '("1991/01/01"[PDat]:"2006/12/31"[PDat])' \
-#              + '&cmd=DetailsSearch&retmax=5000'
+#              + '&cmd=DetailsSearch&retmax=10000'
 
 if len(sys.argv) > 1:
     targetIdSet = checkforabstracts.readListOfAbstractIds(sys.argv[1])
