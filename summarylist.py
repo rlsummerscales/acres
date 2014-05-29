@@ -8,11 +8,11 @@ import math
 import sentencefilters
 import abstractsummary
 
-from irstats import IRstats
-from summarystats import SummaryStats
-from templates import Templates
-from entities import Entities
-
+import irstats
+import summarystats
+import templates
+import entities
+import htmlutil
 
 __author__ = 'Rodney L. Summerscales'
 
@@ -51,7 +51,7 @@ class SummaryList:
         mTypeList = ['age', 'condition', 'group', 'outcome', 'group size', 'primary outcome']
 
         for mType in mTypeList:
-            elementStats[mType] = IRstats()
+            elementStats[mType] = irstats.IRstats()
             nCorrect[mType] = 0
             nIncomplete[mType] = 0
             nAllWrong[mType] = 0
@@ -214,17 +214,17 @@ class SummaryList:
         for abstract in absList:
             for sentence in abstract.sentences:
                 if sentenceFilter(sentence) == True:
-                    sentence.annotatedTemplates = Templates(sentence, useLabels=False)
+                    sentence.annotatedTemplates = templates.Templates(sentence, useLabels=False)
 
             # check for existence of annotated entities
             # normally they should be created during clustering stage.
             # however, when building true summaries, this stage does not happen
             if abstract.annotatedEntities == None:
-                abstract.annotatedEntities = Entities(abstract)
+                abstract.annotatedEntities = entities.Entities(abstract)
                 for mType in ['group', 'condition', 'outcome']:
                     abstract.annotatedEntities.createTrueEntities(mType, sentenceFilter)
 
-            abstract.summaryStats = SummaryStats()
+            abstract.summaryStats = summarystats.SummaryStats()
             abstract.summaryStats.computeTrueStats(abstract)
 
 
@@ -233,17 +233,17 @@ class SummaryList:
             abstracts """
         errorFile = open(errorFilename, 'w')
         #    linkFile = open('links.txt', 'w')
-        totalARRStats = IRstats()
-        totalARRQCStats = IRstats()
+        totalARRStats = irstats.IRstats()
+        totalARRQCStats = irstats.IRstats()
 
-        unusedStats = IRstats()
-        exactAbstractARRStats = IRstats()
-        moderateAbstractARRStats = IRstats()
-        liberalAbstractARRStats = IRstats()
+        unusedStats = irstats.IRstats()
+        exactAbstractARRStats = irstats.IRstats()
+        moderateAbstractARRStats = irstats.IRstats()
+        liberalAbstractARRStats = irstats.IRstats()
 
-        qcExactAbstractARRStats = IRstats()
-        qcModerateAbstractARRStats = IRstats()
-        qcLiberalAbstractARRStats = IRstats()
+        qcExactAbstractARRStats = irstats.IRstats()
+        qcModerateAbstractARRStats = irstats.IRstats()
+        qcLiberalAbstractARRStats = irstats.IRstats()
 
         nBad = 0
         nPredictedBad = 0
@@ -262,8 +262,8 @@ class SummaryList:
         nMissingBoth = 0
 
         outcomePolarities = {}
-        arrStats = IRstats()
-        arrQCStats = IRstats()
+        arrStats = irstats.IRstats()
+        arrQCStats = irstats.IRstats()
         for abstract in absList:
             arrStats.clear()
             arrQCStats.clear()
@@ -272,12 +272,12 @@ class SummaryList:
             #       linkFile.write(abs.id+'\t'+link+'\n')
 
             # find ground truth summary stats
-            trueSummaryTemplates = SummaryStats()
+            trueSummaryTemplates = summarystats.SummaryStats()
             trueSummaryTemplates.computeTrueStats(abstract)
             abstract.trueSummaryStats = trueSummaryTemplates
 
             # find detected summary stats
-            detectedSummaryTemplates = SummaryStats()
+            detectedSummaryTemplates = summarystats.SummaryStats()
             detectedSummaryTemplates.computeDetectedStats(abstract)
             abstract.summaryStats = detectedSummaryTemplates
 
@@ -459,7 +459,7 @@ class SummaryList:
         print '% predicted bad:', percentBad
         print 'Polarity error: %d (%.4f)' % (nPolarityError, percentPolarityError)
 
-        polarityStats = IRstats()
+        polarityStats = irstats.IRstats()
         nBad = 0
         for (trueBadPolarity, predictedBadPolarity) in outcomePolarities.values():
             if trueBadPolarity:
@@ -564,9 +564,12 @@ class SummaryList:
         """ write summaries to html file. """
 
         out = open(filename, mode='w')
-        out.write("<html><head>\n")
+        out.write("<!DOCTYPE html>\n<html>\n<head>\n")
         out.write("<title>" + filename + "</title>\n")
         out.write("<style>body{font-family:Helvetica,Arial,sans-serif;}</style>\n")
+        htmlutil.HTMLSetBorderStyles(out)
+        htmlutil.HTMLSetTableStyle(out, 'publicationinfotable', cellpadding='5px', borderOn=False)
+        htmlutil.HTMLSetTableStyle(out, 'abstractsummarytable', cellpadding='20px', borderOn=False)
 
         out.write("</head>\n")
         for summary in self.list:

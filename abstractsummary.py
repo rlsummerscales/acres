@@ -233,7 +233,7 @@ class Summary:
 
     def writeHTML(self, out, includeReport=False, showError=True):
         """ write summary in html format to given output stream. """
-        htmlutil.HTMLBeginTable(out)
+        htmlutil.HTMLBeginTable(out, classStyle='publicationinfotable')
 
         htmlutil.HTMLBeginRow(out)
 
@@ -253,6 +253,16 @@ class Summary:
         htmlutil.HTMLBeginRow(out)
         htmlutil.HTMLWriteText(out,'Authors:', bold=True)
         htmlutil.HTMLColumnBreak(out)
+        authorList = self.abstract.publicationInformation.getAuthors()
+        authorString = ', '.join(authorList)
+        out.write(authorString)
+        htmlutil.HTMLEndRow(out)
+
+        htmlutil.HTMLBeginRow(out)
+        htmlutil.HTMLWriteText(out,'Affiliation:', bold=True)
+        htmlutil.HTMLColumnBreak(out)
+        for affiliationSentence in self.abstract.affiliationSentences:
+            out.write(affiliationSentence.toPrettyString()+' ')
         htmlutil.HTMLEndRow(out)
 
         htmlutil.HTMLBeginRow(out)
@@ -262,20 +272,20 @@ class Summary:
         htmlutil.HTMLEndRow(out)
 
         htmlutil.HTMLBeginRow(out)
-        htmlutil.HTMLWriteText(out,'Country:', bold=True)
+        htmlutil.HTMLWriteText(out,'J. Country:', bold=True)
         htmlutil.HTMLColumnBreak(out)
         country = self.abstract.publicationInformation.getCountry()
         out.write(country)
         htmlutil.HTMLEndRow(out)
 
         htmlutil.HTMLBeginRow(out)
-        htmlutil.HTMLWriteText(out,'Date:', bold=True)
+        htmlutil.HTMLWriteText(out,'Year pub:', bold=True)
         htmlutil.HTMLColumnBreak(out)
         out.write(self.abstract.publicationInformation.getPublicationDate())
         htmlutil.HTMLEndRow(out)
 
         htmlutil.HTMLBeginRow(out)
-        htmlutil.HTMLWriteText(out,'Publication types:', bold=True)
+        htmlutil.HTMLWriteText(out,'Pub. types:', bold=True)
         htmlutil.HTMLColumnBreak(out)
         pTypeList = self.abstract.publicationInformation.getPublicationTypes()
         for pType in pTypeList:
@@ -285,85 +295,21 @@ class Summary:
 
         htmlutil.HTMLEndTable(out)
 
-        out.write('<p>')
+        # output abstract
+        htmlutil.HTMLBeginTable(out, classStyle='abstractsummarytable')
+        htmlutil.HTMLBeginRow(out, firstColumnWidth='60%', firstColumnBordersOn=False)
+
         self.abstract.writeHTML(out, ['group', 'outcome', 'condition',
                                       'eventrate', 'on', 'gs', 'cost_value'], showError)
         #    self.abstract.writeHTML(out)
-        if self.useTrialReports and includeReport and self.abstract.report is not None:
-            out.write('<h2>Report</h2><ul>\n')
-            report = self.abstract.report
-            out.write('<li>ID: ' + report.id + '</li>\n')
-            if len(report.gender) > 0:
-                out.write('<li>Gender: ' + report.gender + '</li>\n')
-            if len(report.minAge) > 0:
-                out.write('<li>Minimum Age: ' + report.minAge + '</li>\n')
-            if len(report.maxAge) > 0:
-                out.write('<li>Maximum Age: ' + report.maxAge + '</li>\n')
-            if len(report.conditions) > 0:
-                out.write('<li>Conditions<ul>\n')
-                for condition in report.conditions:
-                    out.write('<li>')
-                    for s in condition.sentences:
-                        out.write(s.toString())
-                    out.write('</li>')
-                out.write('</ul></li>\n')
-            if len(report.eligibilityCriteria) > 0:
-                out.write('<li>Eligibility Criteria<ul>\n')
-                for criteria in report.eligibilityCriteria:
-                    out.write('<li>')
-                    for s in criteria.sentences:
-                        out.write(s.toString())
-                    out.write('</li>')
-                out.write('</ul></li>\n')
-            if len(report.inclusionCriteria) > 0:
-                out.write('<li>Inclusion Criteria<ul>\n')
-                for criteria in report.inclusionCriteria:
-                    out.write('<li>')
-                    for s in criteria.sentences:
-                        out.write(s.toString())
-                    out.write('</li>')
-                out.write('</ul></li>\n')
-            if len(report.exclusionCriteria) > 0:
-                out.write('<li>Exclusion Criteria<ul>\n')
-                for criteria in report.exclusionCriteria:
-                    out.write('<li>')
-                    for s in criteria.sentences:
-                        out.write(s.toString())
-                    out.write('</li>')
-                out.write('</ul></li>\n')
-            if len(report.interventions) > 0:
-                out.write('<li>Interventions<ul>\n')
-                for intervention in report.interventions:
-                    out.write('<li>')
-                    for s in intervention.name:
-                        out.write(s.toString())
-                    if len(intervention.description) > 0:
-                        out.write('<ul><li>')
-                        for s in intervention.description:
-                            out.write(s.toString())
-                        out.write('</li></ul>')
-                    out.write('</li>')
-                out.write('</ul></li>\n')
-            if len(report.outcomes) > 0:
-                out.write('<li>Outcomes<ul>\n')
-                for outcome in report.outcomes:
-                    out.write('<li>')
-                    for s in outcome.name:
-                        out.write(s.toString())
-                    if len(outcome.description) > 0:
-                        out.write('<ul><li>')
-                        for s in outcome.description:
-                            out.write(s.toString())
-                        out.write('</li></ul>')
-                    out.write('</li>')
-                out.write('</ul></li>\n')
 
-            out.write('</ul>\n')
-        #     for sentence in self.abstract.sentences:
-        #       out.write(sentence.toString() + '<br>')
-        out.write('</p>')
-        #    self.locationList.writeHTML(out)
+        htmlutil.HTMLColumnBreak(out, width='40%', nextColumnBordersOn=True)
+
+        # output summary
         self.subjectList.writeHTML(out)
         self.outcomeList.writeHTML(out, showError)
 
+        htmlutil.HTMLEndRow(out)
+        htmlutil.HTMLEndTable(out)
+        out.write('<br><br>')
 

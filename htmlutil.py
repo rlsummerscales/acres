@@ -36,35 +36,82 @@ def HTMLWriteText(out, text, color='black', bold=False):
 
         out.write('</span> ')
 
-def HTMLBeginTable(out, lineWidth=0):
+def HTMLSetTableStyle(out, stylename, width='100%', cellpadding='10px', borderOn=False, valign='top'):
+    """
+    Set default table settings. Must be called before the head portion of html file is finished.
+    """
+    out.write('<style type="text/css">\n table.%s{ width:%s; border-collapse:collapse; } \n'
+              % (stylename, width))
+    if borderOn:
+        borderString = 'border:1px solid black;'
+    else:
+        borderString = ''
+    out.write('table.%s th, table.%s td\n{ padding:%s; %s vertical-align:%s }\n'
+              % (stylename, stylename, cellpadding, borderString, valign))
+    out.write('</style>\n')
+
+def HTMLSetBorderStyles(out):
+    """
+        Create border-top, border-bottom, border-left, border-right styles.
+        These are used for adding borders to tables
+    """
+    out.write('<style> .border-top { border-top: 1px solid #000; }')
+    out.write(' .border-bottom { border-bottom: 1px solid #000; }')
+    out.write(' .border-left { border-left: 1px solid #000; }')
+    out.write(' .border-right { border-right: 1px solid #000; }')
+    out.write('</style>')
+
+def HTMLBeginTable(out, classStyle=''):
     """
      Begin a html table
     """
-    out.write('<table>')
+    if classStyle is not '':
+        classString = 'class="%s"' % classStyle
+    else:
+        classString = ''
+    out.write('<table %s>\n' % classString)
 
 def HTMLEndTable(out):
     """
      Finish writing to table
     """
-    out.write('</table>')
+    out.write('</table>\n')
 
-def HTMLBeginRow(out):
+def HTMLBeginRow(out, firstColumnWidth='', firstColumnBordersOn=False):
     """
     start a new row in the table (and begin a new column)
     """
-    out.write('<tr style="vertical-align:top"><td>')
+    out.write('<tr>')
+    HTMLBeginColumn(out, width=firstColumnWidth, bordersOn=firstColumnBordersOn)
 
-def HTMLColumnBreak(out):
+def HTMLBeginColumn(out, width='', bordersOn=False):
+    """
+     Explicitly begin a new column. Not necessary if using HTMLBeginRow or HTMLColumnBreak
+     With = % width (e.g. '50%') or width in pixels (e.g. '50')
+    """
+    if width is not '':
+        widthAttribute = 'style="width:%s"' % width
+    else:
+        widthAttribute = ''
+
+    if bordersOn:
+        borderAttribute = 'class="border-top border-bottom border-left border-right"'
+    else:
+        borderAttribute = ''
+    out.write('<td %s %s>' % (widthAttribute, borderAttribute))
+
+def HTMLColumnBreak(out, width='', nextColumnBordersOn=False):
     """
      End current column and begin a new one
     """
-    out.write('</td><td>')
+    out.write('</td>')
+    HTMLBeginColumn(out, width, bordersOn=nextColumnBordersOn)
 
 def HTMLEndRow(out):
     """
     Finish current row in table (and column)
     """
-    out.write('</td></tr>')
+    out.write('</td></tr>\n')
 
 
 class HTMLFile:

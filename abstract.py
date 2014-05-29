@@ -244,7 +244,7 @@ class Abstract:
         node = self.getXML(doc)
         out = open(filename, 'w')
         out.write('<?xml version="1.0" encoding="utf-8"?>\n')
-        out.write('<?xml-stylesheet href="abstract.xsl" type="text/xsl"?>\n')
+        out.write('<?xml-stylesheet href="http://www.andrews.edu/~summersc/abstract.xsl" type="text/xsl"?>\n')
         xmlutil.writexml(node, out)
         out.close()
 
@@ -280,7 +280,7 @@ class Abstract:
                     correctColor[label] = 'blue'
 
         currentSectionLabel = None
-        out.write('<p>')
+        out.write('<p>\n')
         for sentence in self.sentences:
             if currentSectionLabel != sentence.section:
                 currentSectionLabel = sentence.section
@@ -325,7 +325,7 @@ class Abstract:
                 out.write(' ')
             out.write('\n')
 
-        out.write('</p>')
+        out.write('</p>\n')
         #      out.write('<br>'+sentence.parseString+'\n')
 
     def isKeyTerm(self, token):

@@ -68,6 +68,24 @@ class PublicationInfo:
         year = xmlutil.getTextFromNodeCalled('Year', self._journalNode)
         return year
 
+    def getAuthors(self):
+        """
+         Return list of authors for the abstract
+        """
+        authorNodeList = self._authorListNode.getElementsByTagName('Author')
+        authorList = []
+        for authorNode in authorNodeList:
+            initials = xmlutil.getTextFromNodeCalled('Initials', authorNode)
+            lastName = xmlutil.getTextFromNodeCalled('LastName', authorNode)
+            if lastName is  "" and initials is "":
+                # no author name, it could be a collective
+                collectiveName = xmlutil.getTextFromNodeCalled('CollectiveName', authorNode)
+                if collectiveName is not "":
+                    authorList.append(collectiveName)
+            else:
+                authorList.append('%s %s' % (initials, lastName))
+
+        return authorList
 
     def getPublicationTypes(self):
         """
