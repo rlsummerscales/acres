@@ -166,9 +166,16 @@ class AbstractList:
             fileList = glob.glob(path+'*.xml')
 
         print 'Reading files from', path
+        fileCount = 0
         for file in fileList:
             print 'Reading:',file
             self.__list.append(abstract.Abstract(file, self.sentenceFilter, loadRegistries))
+            fileCount += 1
+            if fileCount >= 200:
+                print "Calling GC..."
+                gc.collect()
+                fileCount = 0
+
         print 'Done!'
         gc.collect()
         self.cleanupAnnotations()

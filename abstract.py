@@ -100,15 +100,10 @@ class Abstract:
                     self.sentences.append(s)
 
                     # read reports
-        if loadRegistries:
-            nodes = absNodes[0].getElementsByTagName('report')
-            if len(nodes) > 0:
-                self.report = nctreport.Report(nodes[0])
-
-            #     meshNodes = absNodes[0].getElementsByTagName('MeshHeadingList')
-            #     if meshNodes != None and len(meshNodes) > 0:
-            #       self.meshHeadingList = MeshHeadingList(meshNodes[0])
+        # remove links within the xml doc so GC can reclaim mem faster
+        xmldoc.unlink()
         self.__buildAcronymTable()
+
 
     def __buildAcronymTable(self):
         """ look for acronym definitions in each abstract and build a table of acronyms

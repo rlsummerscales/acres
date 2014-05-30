@@ -32,7 +32,7 @@ class PublicationInfo:
 
         journalNodes = pubInfoNode.getElementsByTagName('Journal')
         if len(journalNodes) > 0:
-            self._journalNode = journalNodes[0]
+            self._journalNode = journalNodes[0].cloneNode(deep=True)
 
         countryNodes = pubInfoNode.getElementsByTagName('Country')
         if len(countryNodes) > 0:
@@ -40,11 +40,11 @@ class PublicationInfo:
 
         authorListNodes = pubInfoNode.getElementsByTagName('AuthorList')
         if len(authorListNodes) > 0:
-            self._authorListNode = authorListNodes[0]
+            self._authorListNode = authorListNodes[0].cloneNode(deep=True)
 
         publicationTypeListNodes = pubInfoNode.getElementsByTagName('PublicationTypeList')
         if len(publicationTypeListNodes) > 0:
-            self._publicationTypeListNode = publicationTypeListNodes[0]
+            self._publicationTypeListNode = publicationTypeListNodes[0].cloneNode(deep=True)
 
 
     def getCountry(self):
@@ -57,6 +57,9 @@ class PublicationInfo:
         """
          Return name of journal
         """
+        if self._journalNode is None:
+            return ''
+
         journalName = xmlutil.getTextFromNodeCalled('Title', self._journalNode)
         return journalName
 
@@ -65,6 +68,9 @@ class PublicationInfo:
         """
          Return a string with month and year of publication
         """
+        if self._journalNode is None:
+            return ''
+
         year = xmlutil.getTextFromNodeCalled('Year', self._journalNode)
         return year
 
@@ -72,6 +78,8 @@ class PublicationInfo:
         """
          Return list of authors for the abstract
         """
+        if self._authorListNode is None:
+            return []
         authorNodeList = self._authorListNode.getElementsByTagName('Author')
         authorList = []
         for authorNode in authorNodeList:
@@ -91,6 +99,8 @@ class PublicationInfo:
         """
          Return list of strings describing the type of publication that the abstract is
         """
+        if self._publicationTypeListNode is None:
+            return []
         pTypes = []
         publicationTypeNodes = self._publicationTypeListNode.getElementsByTagName('PublicationType')
         for node in publicationTypeNodes:
@@ -106,10 +116,13 @@ class PublicationInfo:
           Create an XML element with publication information
         """
         node = doc.createElement('PublicationInformation')
-        node.appendChild(self._journalNode)
+        if self._journalNode is not None:
+            node.appendChild(self._journalNode)
         node.appendChild(xmlutil.createNodeWithTextChild(doc, 'Country', self._country))
-        node.appendChild(self._authorListNode)
-        node.appendChild(self._publicationTypeListNode)
+        if self._authorListNode is not None:
+            node.appendChild(self._authorListNode)
+        if self._publicationTypeListNode is not None:
+            node.appendChild(self._publicationTypeListNode)
         xmlutil.normalizeXMLTree(node)
         return node
 
