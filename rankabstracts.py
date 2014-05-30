@@ -9,6 +9,7 @@ import glob
 import xml
 import xmlutil
 import htmlutil
+import summarylist
 
 __author__ = 'Rodney L. Summerscales'
 
@@ -148,15 +149,16 @@ if __name__ == '__main__':
     htmlFile = htmlutil.HTMLFile(title='Least relevant EBM summaries')
     for (id, xmlSummary) in lowQuality:
         htmlFile.addBodyElement(xmlSummary.htmlData)
-    htmlFile.writeFile(outputPath+'summaries.low.html')
+    htmlFile.writeFile(outputPath+'summaries.low.html', useSummaryFormat=True)
 
     htmlFile = htmlutil.HTMLFile(title='Somewhat relevant EBM summaries')
     for (id, xmlSummary) in mediumQuality:
         htmlFile.addBodyElement(xmlSummary.htmlData)
-    htmlFile.writeFile(outputPath+'summaries.med.html')
+    htmlFile.writeFile(outputPath+'summaries.med.html', useSummaryFormat=True)
 
     htmlFile = htmlutil.HTMLFile(title='Most relevant EBM summaries')
+
     for (id, xmlSummary) in highQuality:
         htmlFile.addBodyElement(xmlSummary.htmlData)
-    htmlFile.writeFile(outputPath+'summaries.high.html')
+    htmlFile.writeFile(outputPath+'summaries.high.html', useSummaryFormat=True)
 

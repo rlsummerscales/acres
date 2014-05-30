@@ -562,16 +562,8 @@ class SummaryList:
 
     def writeHTML(self, filename):
         """ write summaries to html file. """
+        out = htmlutil.HTMLCreateSummaryFile(filename)
 
-        out = open(filename, mode='w')
-        out.write("<!DOCTYPE html>\n<html>\n<head>\n")
-        out.write("<title>" + filename + "</title>\n")
-        out.write("<style>body{font-family:Helvetica,Arial,sans-serif;}</style>\n")
-        htmlutil.HTMLSetBorderStyles(out)
-        htmlutil.HTMLSetTableStyle(out, 'publicationinfotable', cellpadding='5px', borderOn=False)
-        htmlutil.HTMLSetTableStyle(out, 'abstractsummarytable', cellpadding='20px', borderOn=False)
-
-        out.write("</head>\n")
         for summary in self.list:
             summary.writeHTML(out, showError=False)
         out.write('</body></html>\n')

@@ -36,6 +36,22 @@ def HTMLWriteText(out, text, color='black', bold=False):
 
         out.write('</span> ')
 
+def HTMLCreateSummaryFile(filename):
+    """
+     Open HTML file for writing and setup the CSS styles for the summary format
+     Begin the body.
+    """
+    out = open(filename, mode='w')
+    out.write("<!DOCTYPE html>\n<html>\n<head>\n")
+    out.write("<title>" + filename + "</title>\n")
+    out.write("<style>body{font-family:Helvetica,Arial,sans-serif;}</style>\n")
+    HTMLSetBorderStyles(out)
+    HTMLSetTableStyle(out, 'publicationinfotable', cellpadding='5px', borderOn=False)
+    HTMLSetTableStyle(out, 'abstractsummarytable', cellpadding='20px', borderOn=False)
+    out.write("</head><body>\n")
+    return out
+
+
 def HTMLSetTableStyle(out, stylename, width='100%', cellpadding='10px', borderOn=False, valign='top'):
     """
     Set default table settings. Must be called before the head portion of html file is finished.
@@ -134,12 +150,12 @@ class HTMLFile:
         """
         self.bodyElementList.append(bodyElement)
 
-    def writeFile(self, filename):
+    def writeFile(self, filename, useSummaryFormat=False):
         """
         Write contents of HTML object to a given file
         :param filename: name of HTML file to create
         """
-        out = self.HTMLOpenBasicFile(filename)
+        out = self.HTMLOpenBasicFile(filename, useSummaryFormat=useSummaryFormat)
         for bodyElement in self.bodyElementList:
             out.write(bodyElement)
         self.HTMLClose(out)
@@ -153,17 +169,20 @@ class HTMLFile:
         self.HTMLClose(out)
 
     @staticmethod
-    def HTMLOpenBasicFile(filename):
+    def HTMLOpenBasicFile(filename, useSummaryFormat=False):
         """
          Create a basic HTML file for writing. Write header information.
          Return reference to the filestream
         :param filename: Name for HTML file
         """
-        out = open(filename, mode='w')
-        out.write("<html><head>\n")
-        out.write("<title>" + filename + "</title>\n")
-        out.write("<style>body{font-family:Helvetica,Arial,sans-serif;}</style>\n")
-        out.write("</head>\n")
+        if useSummaryFormat is True:
+            out = HTMLCreateSummaryFile(filename)
+        else:
+            out = open(filename, mode='w')
+            out.write("<html><head>\n")
+            out.write("<title>" + filename + "</title>\n")
+            out.write("<style>body{font-family:Helvetica,Arial,sans-serif;}</style>\n")
+            out.write("</head><body>\n")
         return out
 
     @staticmethod
